@@ -1,0 +1,53 @@
+name: Publicar jogo no GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Godot 4.6.3 com checksum fixado
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot_dir="$RUNNER_TEMP/godot"
+          mkdir -p "$godot_dir"
+          cd "$godot_dir"
+          curl --fail --location --retry 3 \
+            https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip \
+            --output godot.zip
+          echo 'a035258da32b77f966a5376f9fa29c30a6adde826a85ba918e1605bd1fc9823eba7d85f1dd5e748956bd2ba72827c0025ffa11bb82aec91128c407a2e723c99c  godot.zip' | sha512sum --check
+          unzip -q godot.zip
+          mv Godot_v4.6.3-stable_linux.x86_64 godot
+          chmod +x godot
+          echo "$godot_dir" >> "$GITHUB_PATH"
+      - name: Importar e testar
+        run: bash tools/setup.sh
+      - name: Exportar HTML5
+        run: bash tools/export_web.sh
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: builds/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
