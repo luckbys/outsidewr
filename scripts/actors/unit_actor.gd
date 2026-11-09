@@ -3,7 +3,7 @@ extends Node2D
 
 signal died(unit: UnitActor, attacker: UnitActor)
 
-enum Role { HERO, TROOP, TOWER, CORE }
+enum Role { HERO, TROOP, BARRICADE, CORE }
 
 var team: int = 0
 var role: Role = Role.TROOP
@@ -24,6 +24,8 @@ var hit_flash := 0.0
 var animation_time := 0.0
 var moving := false
 var reward := 0
+var visual_variant := 0
+var facing := 1.0
 
 func setup(match_node: Node, side: int, kind: Role, point: Vector2, player: bool = false) -> void:
 	arena = match_node
@@ -32,6 +34,8 @@ func setup(match_node: Node, side: int, kind: Role, point: Vector2, player: bool
 	controlled = player
 	world_position = point
 	destination = point
+	visual_variant = posmod(int(point.y / 27.0) + side, 4)
+	facing = 1.0 if side == 0 else -1.0
 	var values := MatchRules.stats(kind)
 	max_hp = values.hp
 	hp = max_hp
@@ -52,7 +56,7 @@ func tick(delta: float) -> void:
 	if is_instance_valid(attack_target) and not attack_target.alive:
 		attack_target = null
 	if not controlled:
-		# Troops take tower aggro before a hero when they enter together.
+		# Troops take barricade aggro before a hero when they enter together.
 		attack_target = arena.nearest_enemy(self, attack_range if speed == 0 else 205.0)
 		if speed > 0:
 			destination = Vector2(515 if team == 0 else -515, world_position.y)
@@ -62,6 +66,9 @@ func tick(delta: float) -> void:
 		if distance <= attack_range:
 			if attack_timer <= 0:
 				attack_timer = attack_interval
+				var aim := Iso.project(attack_target.world_position - world_position)
+				if absf(aim.x) > 0.1:
+					facing = signf(aim.x)
 				arena.add_shot(world_position, attack_target.world_position, team)
 				attack_target.take_damage(damage, self)
 		else:
@@ -79,6 +86,9 @@ func tick(delta: float) -> void:
 func move_towards(point: Vector2, delta: float) -> void:
 	if speed <= 0 or world_position.distance_to(point) < 3:
 		return
+	var direction := Iso.project(point - world_position)
+	if absf(direction.x) > 0.1:
+		facing = signf(direction.x)
 	world_position = Iso.clamp_to_lane(world_position.move_toward(point, speed * delta))
 	moving = true
 
@@ -87,8 +97,8 @@ func take_damage(amount: float, attacker: UnitActor) -> void:
 		return
 	if is_instance_valid(attacker) and attacker.team == team:
 		return
-	# An intact tower on this team protects its core.
-	if role == Role.CORE and arena.has_towers(team):
+	# An intact barricade on this team protects its core.
+	if role == Role.CORE and arena.has_barricades(team):
 		return
 	hp = maxf(0, hp - amount)
 	hit_flash = 0.14
@@ -114,12 +124,12 @@ func _draw() -> void:
 	if controlled:
 		draw_arc(Vector2.ZERO, 28, 0, TAU, 40, Color("eee3bb"), 2, true)
 	draw_set_transform(Vector2.ZERO)
-	if role == Role.TOWER or role == Role.CORE:
+	if role == Role.BARRICADE or role == Role.CORE:
 		draw_structure(color)
 	else:
 		draw_person(color)
-	var width := 57.0 if role == Role.HERO else 46.0
-	var height := 76.0 if role == Role.CORE else (101.0 if role == Role.TOWER else 57.0)
+	var width := 62.0 if role == Role.HERO else (85.0 if role == Role.BARRICADE else 46.0)
+	var height := 76.0 if role == Role.CORE else (66.0 if role == Role.BARRICADE else (84.0 if role == Role.HERO else 73.0))
 	draw_rect(Rect2(-width / 2 - 1, -height - 1, width + 2, 7), Color("1b302d"))
 	draw_rect(Rect2(-width / 2, -height, width * hp / max_hp, 5), color)
 	if role == Role.HERO:
@@ -128,27 +138,102 @@ func _draw() -> void:
 
 func draw_person(color: Color) -> void:
 	var hero := role == Role.HERO
-	var factor := 1.2 if hero else 0.83
-	var stride := sin(animation_time * 14) * 3 if moving else 0.0
-	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE * factor)
-	draw_line(Vector2(-5, -15), Vector2(-6 + stride, -1), Color("243e3d"), 6, true)
-	draw_line(Vector2(5, -15), Vector2(6 - stride, -1), Color("243e3d"), 6, true)
-	draw_colored_polygon(PackedVector2Array([Vector2(-10, -33), Vector2(7, -33),
-		Vector2(10, -13), Vector2(-9, -13)]), color)
-	draw_line(Vector2(-9, -29), Vector2(-14, -17), color.darkened(0.1), 5, true)
-	draw_line(Vector2(8, -28), Vector2(15, -22), color.darkened(0.1), 5, true)
-	draw_circle(Vector2(-1, -40), 8, Color("c79b78"))
-	if team == 0:
-		draw_arc(Vector2(-1, -41), 8, PI, TAU, 15, Color("254451"), 5, true)
-		draw_rect(Rect2(-5, -29, 9, 9), color.darkened(0.45))
+	var scale_factor := 1.12 if hero else 0.98
+	var stride := sin(animation_time * 10.5) * 4.5 if moving else 0.0
+	var breath := sin(animation_time * 2) * 0.5
+	var skins := [Color("b58161"), Color("825a44"), Color("d0a080"), Color("684a3b")]
+	var skin: Color = skins[visual_variant]
+	var shirt: Color = Color("263c4d") if team == 0 else [Color("50584c"), Color("665c50"), Color("4c5159"), Color("494e4e")][visual_variant]
+	var trousers := Color("273540") if team == 0 else Color("3d4851")
+	var vest := Color("1c292e") if team == 0 else Color("3d4238")
+	if hit_flash > 0:
+		shirt = shirt.lightened(0.55)
+		vest = vest.lightened(0.4)
+		skin = skin.lightened(0.2)
+	draw_set_transform(Vector2(0, breath), 0, Vector2(facing, 1) * scale_factor)
+	# Legs have separate thighs, knees, shins, boots and soles.
+	for side in [-1, 1]:
+		var hip := Vector2(side * 4.8, -28)
+		var knee := Vector2(side * 5 + stride * side * 0.45, -15)
+		var ankle := Vector2(side * 5 - stride * side, -3)
+		draw_line(hip, knee, trousers, 7, true)
+		draw_line(knee, ankle, trousers.darkened(0.1), 6, true)
+		draw_line(ankle + Vector2(-2, 1), ankle + Vector2(5, 1), Color("202826"), 6, true)
+		draw_line(ankle + Vector2(-3, 4), ankle + Vector2(7, 4), Color("6d7265"), 1.3, true)
+	# The far arm sits behind the torso.
+	draw_line(Vector2(-8, -48), Vector2(-13, -35), shirt.darkened(0.15), 6, true)
+	draw_line(Vector2(-13, -35), Vector2(4, -34), skin.darkened(0.12), 4.5, true)
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, -52), Vector2(8, -52),
+		Vector2(10, -45), Vector2(7, -30), Vector2(-7, -30), Vector2(-11, -44)]), shirt)
+	if hero or team == 0:
+		draw_colored_polygon(PackedVector2Array([Vector2(-7, -49), Vector2(7, -49),
+			Vector2(6, -33), Vector2(-6, -33)]), vest)
+		draw_line(Vector2(-5, -48), Vector2(-4, -33), vest.lightened(0.16), 1, true)
+		for x in [-4, 2]:
+			draw_rect(Rect2(x, -41, 4, 6), vest.lightened(0.1))
+	draw_line(Vector2(-7, -30), Vector2(7, -30), Color("202825"), 3.5, true)
+	draw_rect(Rect2(-8, -29, 4, 5), vest)
+	draw_circle(Vector2(2, -54), 3, skin)
+	# A proportionate face, ear, nose and the headwear of each faction.
+	draw_circle(Vector2(1, -61), 6.5, skin)
+	draw_circle(Vector2(-5, -61), 2, skin.darkened(0.12))
+	draw_colored_polygon(PackedVector2Array([Vector2(5, -63), Vector2(9, -60), Vector2(5, -59)]), skin)
+	draw_line(Vector2(3, -63), Vector2(5, -63), Color("30352e"), 1.2, true)
+	if team == 0 and hero:
+		draw_arc(Vector2(0, -62), 7, PI, TAU + 0.25, 20, Color("293c46"), 5, true)
+		draw_line(Vector2(-6, -60), Vector2(-3, -55), Color("25332e"), 1.4, true)
 	else:
-		draw_line(Vector2(-8, -45), Vector2(6, -45), color, 4, true)
-		draw_line(Vector2(3, -31), Vector2(-4, -15), color.lightened(0.35), 2, true)
-	# Abstract equipment, deliberately kept as placeholder silhouettes.
-	draw_line(Vector2(9, -23), Vector2(23 if team == 0 else -20, -30), Color("273d39"), 4, true)
+		draw_arc(Vector2(0, -63), 6, PI, TAU, 16, shirt.darkened(0.2), 4, true)
+		draw_line(Vector2(1, -67), Vector2(10, -66), shirt.darkened(0.3), 3, true)
+	# Small patches preserve team readability without neon uniforms.
+	draw_rect(Rect2(-10, -46, 3, 5), color.darkened(0.1))
+	draw_rect(Rect2(3, -47, 3, 3), color.lightened(0.1))
+	if hero and team == 1:
+		draw_line(Vector2(-6, -50), Vector2(7, -31), Color("867b62"), 2, true)
+	if hero and team == 0:
+		draw_rect(Rect2(-6, -49, 3, 5), Color("424b48"))
+	# Near arm and abstract carried equipment share a stable two-handed pose.
+	draw_line(Vector2(8, -48), Vector2(12, -38), shirt, 6, true)
+	draw_line(Vector2(12, -38), Vector2(5, -34), skin, 4.5, true)
+	draw_line(Vector2(-1, -35), Vector2(19, -41), Color("262f30"), 4, true)
+	draw_line(Vector2(17, -41), Vector2(26, -43), Color("354044"), 2.3, true)
+	draw_line(Vector2(4, -35), Vector2(7, -31), Color("242c2b"), 2, true)
+	draw_circle(Vector2(5, -35), 2, skin)
 	draw_set_transform(Vector2.ZERO)
 
+func draw_barricade(color: Color) -> void:
+	# Sloped concrete, worn paint, sandbags and stacked tires replace the tower.
+	var ground := Iso.diamond(Rect2(-16, -46, 32, 92))
+	var top := Iso.diamond(Rect2(-6, -46, 12, 92), 24)
+	draw_colored_polygon(PackedVector2Array([ground[1], ground[2], top[2], top[1]]), Color("747870"))
+	draw_colored_polygon(PackedVector2Array([ground[2], ground[3], top[3], top[2]]), Color("929387"))
+	draw_colored_polygon(top, Color("b7b5a4"))
+	for i in 5:
+		var point := Iso.project(Vector2(11, -35 + i * 17)) - Vector2(0, 13)
+		draw_line(point, point + Vector2(-3, 7), Color("c7b469") if i % 2 == 0 else Color("444a42"), 4, true)
+	var plate := Iso.project(Vector2(10, 2)) - Vector2(0, 18)
+	draw_line(plate, plate + Vector2(-14, 7), color.darkened(0.12), 5, true)
+	for i in 4:
+		var point := ground[2].lerp(top[2], 0.2 + i * 0.17)
+		draw_line(point + Vector2(-5 - i * 5, -2), point + Vector2(-13 - i * 5, -1), Color("636c61"), 1, true)
+	for i in 4:
+		var point := Iso.project(Vector2(24, -24 + i * 17)) - Vector2(0, 5)
+		draw_set_transform(point, -0.45, Vector2(1, 0.6))
+		draw_circle(Vector2.ZERO, 8, Color("8d8061"))
+		draw_line(Vector2(-5, -1), Vector2(5, -1), Color("a19371"), 1, true)
+		draw_set_transform(Vector2.ZERO)
+	for i in 3:
+		var point := Iso.project(Vector2(25, 44)) - Vector2(0, 5 + i * 7)
+		draw_set_transform(point, 0, Vector2(1, 0.5))
+		draw_circle(Vector2.ZERO, 10, Color("282e29"))
+		draw_arc(Vector2.ZERO, 8, 0, TAU, 20, Color("4d554c"), 1.5, true)
+		draw_circle(Vector2.ZERO, 4, Color("666f61"))
+		draw_set_transform(Vector2.ZERO)
+
 func draw_structure(color: Color) -> void:
+	if role == Role.BARRICADE:
+		draw_barricade(color)
+		return
 	var core := role == Role.CORE
 	var rect := Rect2(-31, -28, 62, 56) if core else Rect2(-16, -16, 32, 32)
 	var height := 47.0 if core else 72.0
@@ -161,5 +246,5 @@ func draw_structure(color: Color) -> void:
 	draw_colored_polygon(PackedVector2Array([Vector2(0, -height - 27),
 		Vector2(24, -height - 20), Vector2(0, -height - 13)]), color)
 	draw_circle(Vector2(0, -height + 2), 7, color)
-	if core and arena.has_towers(team):
+	if core and arena.has_barricades(team):
 		draw_arc(Vector2(0, -32), 40, PI, TAU, 32, Color(color, 0.4), 2, true)

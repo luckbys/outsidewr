@@ -25,7 +25,7 @@ O **F5** continua abrindo o protótipo 2D. Após atualizar a imagem Docker, a de
 1. Instale o **Godot 4.6.x Standard**, com GDScript. A versão usada na validação foi **4.6.3**; não é necessário .NET.
 2. Importe o arquivo [`project.godot`](project.godot) no gerenciador de projetos.
 3. Pressione **F5** e escolha uma facção.
-4. Acompanhe suas tropas, destrua as **duas torres inimigas** e depois a **central rival**. A central permanece protegida enquanto houver uma torre de sua equipe.
+4. Acompanhe suas tropas, destrua as **duas barricadas inimigas** e depois a **central rival**. A central permanece protegida enquanto houver uma barricada de sua equipe.
 
 No terminal, com `godot` no PATH:
 
@@ -53,12 +53,12 @@ Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua
 
 - Seleção das duas facções, com cores e personagens identificáveis.
 - Mapa isométrico procedural: casas, lajes, caixas-d'água, antenas, varais, postes, fiação e quadra.
-- Uma rota livre de obstáculos, duas torres e uma central por equipe.
+- Uma rota livre de obstáculos, duas barricadas e uma central por equipe.
 - Herói jogável, herói adversário com IA simples e ondas de três tropas por lado a cada 14 s.
 - Ataques automáticos, habilidades, vida, cura, derrota, retorno, vitória e reinício.
 - HUD em português com minimapa, vida das centrais, cronômetro e recargas.
 
-Esta versão é **local e para um jogador**, com arte geométrica provisória. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final.
+Esta versão é **local e para um jogador**, com arte geométrica provisória. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final. As barricadas e os personagens usam visuais mais detalhados, com equipamentos e vestimentas distintos por facção.
 
 ## Organização
 
@@ -69,7 +69,7 @@ resources/factions/     Dados editáveis de cada facção (.tres)
 scripts/
   core/iso.gd           Projeção, seleção e limites de movimento
   data/                 Recursos de facção e regras de balanceamento
-  actors/unit_actor.gd  Heróis, tropas, torres e centrais
+  actors/unit_actor.gd  Heróis, tropas, barricadas e centrais
   match/                Estado, comandos e simulação da partida
   world/                Cenário procedural e efeitos de combate
   ui/                   Interface, seleção, pausa e resultado
@@ -88,7 +88,7 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **62 verificações**: 29 de simulação, 7 de interface e 26 do ambiente 3D. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera e uma rota de navegação entre as bases.
+Esse comando importa o projeto e executa **71 verificações**: 29 de simulação, 8 de interface e 34 do ambiente 3D. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera e uma rota de navegação entre as bases.
 
 Para executar separadamente:
 

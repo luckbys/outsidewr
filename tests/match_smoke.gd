@@ -21,7 +21,7 @@ func run() -> void:
 	root.add_child(arena)
 	arena.set_process(false)
 	verify(arena.state == arena.State.MENU, "Scene opens at faction selection")
-	verify(arena.units.size() == 8, "Both sides have a hero, two towers and a core")
+	verify(arena.units.size() == 8, "Both sides have a hero, two barricades and a core")
 	for point in [Vector2(-521, 110), Vector2(380, -70), Vector2.ZERO]:
 		verify(Iso.unproject(Iso.project(point)).distance_to(point) < 0.001, "Isometric picking round trip")
 	arena.start_match(0)
@@ -50,19 +50,19 @@ func run() -> void:
 	verify(arena.cast_dash(origin + Vector2(300, 0)), "E activates")
 	verify(is_equal_approx(arena.player.world_position.distance_to(origin), MatchRules.DASH_DISTANCE), "E moves the hero the configured distance")
 	verify(not arena.cast_dash(origin), "E cannot bypass its cooldown")
-	# Towers gate victory; a dead core must stop the match.
+	# Barricades gate victory; a dead core must stop the match.
 	arena.start_match(0)
 	var core: UnitActor
 	for unit in arena.units:
 		if unit.team == 1 and unit.role == UnitActor.Role.CORE:
 			core = unit
 	core.take_damage(50, arena.player)
-	verify(core.hp == core.max_hp, "An intact tower protects its core")
+	verify(core.hp == core.max_hp, "An intact barricade protects its core")
 	for unit in arena.units.duplicate():
-		if unit.team == 1 and unit.role == UnitActor.Role.TOWER:
+		if unit.team == 1 and unit.role == UnitActor.Role.BARRICADE:
 			unit.take_damage(10000, arena.player)
 	core.take_damage(50, arena.player)
-	verify(core.hp == core.max_hp - 50, "Destroying both towers unlocks core damage")
+	verify(core.hp == core.max_hp - 50, "Destroying both barricades unlocks core damage")
 	core.take_damage(10000, arena.player)
 	verify(arena.state == arena.State.FINISHED and arena.winner == 0, "Destroying the enemy core produces victory")
 	var time: float = arena.elapsed

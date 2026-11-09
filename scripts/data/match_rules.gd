@@ -24,7 +24,7 @@ static func stats(role: int) -> Dictionary:
 		1: # Troop
 			return {"hp": 100.0, "speed": 47.0, "damage": 11.0,
 				"range": 74.0, "interval": 0.95, "reward": 15}
-		2: # Tower
+		2: # Barricade
 			return {"hp": 640.0, "speed": 0.0, "damage": 38.0,
 				"range": 190.0, "interval": 1.15, "reward": 120}
 		_: # Core

@@ -1,8 +1,11 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/modules/house_block_3d.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/modules/landmark_3d.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/world/lane_navigation_3d.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/world/modules/barricade_3d.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/actors/character_visual_3d.tscn" id="5"]
+[ext_resource type="Script" path="res://scripts/demo/unit_preview_3d.gd" id="6"]
 
 [sub_resource type="BoxMesh" id="UnitBox"]
 size = Vector3(1, 1, 1)
@@ -100,8 +103,8 @@ sky_material = SubResource("SkyMaterial")
 background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 2
-ambient_light_color = Color(0.76, 0.82, 0.74, 1)
-ambient_light_energy = 0.62
+ambient_light_color = Color(0.68, 0.76, 0.83, 1)
+ambient_light_energy = 0.35
 reflected_light_source = 2
 tonemap_mode = 2
 
@@ -862,8 +865,8 @@ environment = SubResource("Environment")
 
 [node name="Sun" type="DirectionalLight3D" parent="Lighting"]
 rotation_degrees = Vector3(-58, -32, 0)
-light_color = Color(1, 0.89, 0.73, 1)
-light_energy = 1.1
+light_color = Color(1, 0.94, 0.86, 1)
+light_energy = 0.85
 shadow_enabled = true
 directional_shadow_mode = 0
 directional_shadow_max_distance = 110.0
@@ -874,11 +877,12 @@ directional_shadow_max_distance = 110.0
 [node name="Lane" type="NavigationRegion3D" parent="Navigation"]
 script = ExtResource("3")
 lane_length = 60.0
-lane_width = 8.0
+lane_width = 4.0
+center_z = -1.7
 
 [node name="Preview" type="MeshInstance3D" parent="Navigation"]
-position = Vector3(0, 0.12, 0)
-scale = Vector3(60, 0.02, 8)
+position = Vector3(0, 0.12, -1.7)
+scale = Vector3(60, 0.02, 4)
 mesh = SubResource("UnitBox")
 material_override = SubResource("NavigationPreview")
 cast_shadow = 0
@@ -893,17 +897,17 @@ label_text = "CENTRAL AZUL"
 accent = Color(0.34, 0.74, 0.91, 1)
 column_height = 1.2
 
-[node name="PoliceTower1" parent="PointsOfInterest" instance=ExtResource("2")]
+[node name="PoliceBarricade1" parent="PointsOfInterest" instance=ExtResource("4")]
 position = Vector3(-14.5, 0.08, 2.5)
-label_text = "TORRE AZUL"
+label_text = "BARRICADA AZUL"
 accent = Color(0.34, 0.74, 0.91, 1)
-column_height = 2.2
+rotation = Vector3(0, -1.570796, 0)
 
-[node name="PoliceTower2" parent="PointsOfInterest" instance=ExtResource("2")]
+[node name="PoliceBarricade2" parent="PointsOfInterest" instance=ExtResource("4")]
 position = Vector3(-7.0, 0.08, 2.5)
-label_text = "TORRE AZUL"
+label_text = "BARRICADA AZUL"
 accent = Color(0.34, 0.74, 0.91, 1)
-column_height = 2.2
+rotation = Vector3(0, -1.570796, 0)
 
 [node name="PoliceSpawn" type="Marker3D" parent="PointsOfInterest" groups=["spawn_points"]]
 position = Vector3(-25.5, 0.06, -1.5)
@@ -914,20 +918,120 @@ label_text = "CENTRAL CORAL"
 accent = Color(0.96, 0.48, 0.35, 1)
 column_height = 1.2
 
-[node name="TrafficTower1" parent="PointsOfInterest" instance=ExtResource("2")]
+[node name="TrafficBarricade1" parent="PointsOfInterest" instance=ExtResource("4")]
 position = Vector3(14.5, 0.08, 2.5)
-label_text = "TORRE CORAL"
+label_text = "BARRICADA CORAL"
 accent = Color(0.96, 0.48, 0.35, 1)
-column_height = 2.2
+rotation = Vector3(0, 1.570796, 0)
 
-[node name="TrafficTower2" parent="PointsOfInterest" instance=ExtResource("2")]
+[node name="TrafficBarricade2" parent="PointsOfInterest" instance=ExtResource("4")]
 position = Vector3(7.0, 0.08, 2.5)
-label_text = "TORRE CORAL"
+label_text = "BARRICADA CORAL"
 accent = Color(0.96, 0.48, 0.35, 1)
-column_height = 2.2
+rotation = Vector3(0, 1.570796, 0)
 
 [node name="TrafficSpawn" type="Marker3D" parent="PointsOfInterest" groups=["spawn_points"]]
 position = Vector3(25.5, 0.06, -1.5)
 
 [node name="Center" type="Marker3D" parent="PointsOfInterest" groups=["points_of_interest"]]
 position = Vector3(0, 0.06, 0)
+
+[node name="Units" type="Node3D" parent="."]
+
+[node name="PoliceHero" type="Node3D" parent="Units" groups=["hero_previews"]]
+position = Vector3(-2.2, 0.10, -1.5)
+rotation = Vector3(0, -1.570796, 0)
+script = ExtResource("6")
+
+[node name="Character" parent="Units/PoliceHero" instance=ExtResource("5")]
+team = 0
+hero = true
+variation = 0
+
+[node name="PoliceMinion1" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(-12.575, 0.10, -3.0)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(-14, 0.10, -3.0)
+endpoint_b = Vector3(-4.5, 0.10, -3.0)
+start_fraction = 0.15
+
+[node name="Character" parent="Units/PoliceMinion1" instance=ExtResource("5")]
+team = 0
+hero = false
+variation = 1
+
+[node name="PoliceMinion2" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(-9.725000000000001, 0.10, -2.1)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(-14, 0.10, -2.1)
+endpoint_b = Vector3(-4.5, 0.10, -2.1)
+start_fraction = 0.44999999999999996
+
+[node name="Character" parent="Units/PoliceMinion2" instance=ExtResource("5")]
+team = 0
+hero = false
+variation = 2
+
+[node name="PoliceMinion3" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(-6.875, 0.10, -1.0)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(-14, 0.10, -1.0)
+endpoint_b = Vector3(-4.5, 0.10, -1.0)
+start_fraction = 0.75
+
+[node name="Character" parent="Units/PoliceMinion3" instance=ExtResource("5")]
+team = 0
+hero = false
+variation = 3
+
+[node name="TrafficHero" type="Node3D" parent="Units" groups=["hero_previews"]]
+position = Vector3(2.2, 0.10, -1.5)
+rotation = Vector3(0, 1.570796, 0)
+script = ExtResource("6")
+
+[node name="Character" parent="Units/TrafficHero" instance=ExtResource("5")]
+team = 1
+hero = true
+variation = 1
+
+[node name="TrafficMinion1" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(12.575, 0.10, -3.0)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(14, 0.10, -3.0)
+endpoint_b = Vector3(4.5, 0.10, -3.0)
+start_fraction = 0.15
+
+[node name="Character" parent="Units/TrafficMinion1" instance=ExtResource("5")]
+team = 1
+hero = false
+variation = 1
+
+[node name="TrafficMinion2" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(9.725000000000001, 0.10, -2.1)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(14, 0.10, -2.1)
+endpoint_b = Vector3(4.5, 0.10, -2.1)
+start_fraction = 0.44999999999999996
+
+[node name="Character" parent="Units/TrafficMinion2" instance=ExtResource("5")]
+team = 1
+hero = false
+variation = 2
+
+[node name="TrafficMinion3" type="Node3D" parent="Units" groups=["minion_previews"]]
+position = Vector3(6.875, 0.10, -1.0)
+script = ExtResource("6")
+patrol = true
+endpoint_a = Vector3(14, 0.10, -1.0)
+endpoint_b = Vector3(4.5, 0.10, -1.0)
+start_fraction = 0.75
+
+[node name="Character" parent="Units/TrafficMinion3" instance=ExtResource("5")]
+team = 1
+hero = false
+variation = 3
