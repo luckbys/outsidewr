@@ -4,6 +4,7 @@ extends NavigationRegion3D
 
 @export var lane_length := 60.0
 @export var lane_width := 8.0
+@export var center_z := 0.0
 
 func _ready() -> void:
 	var mesh := NavigationMesh.new()
@@ -12,8 +13,8 @@ func _ready() -> void:
 	var x := lane_length * 0.5
 	var z := lane_width * 0.5
 	mesh.set_vertices(PackedVector3Array([
-		Vector3(-x, 0.06, -z), Vector3(-x, 0.06, z),
-		Vector3(x, 0.06, z), Vector3(x, 0.06, -z)
+		Vector3(-x, 0.06, center_z - z), Vector3(-x, 0.06, center_z + z),
+		Vector3(x, 0.06, center_z + z), Vector3(x, 0.06, center_z - z)
 	]))
 	mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	navigation_mesh = mesh

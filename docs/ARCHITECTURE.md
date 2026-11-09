@@ -23,18 +23,18 @@ As posições de jogo são `Vector2` em um plano lógico. `Iso.project()` conver
 
 `MatchController.simulate(delta)` é o ponto único de avanço: cronômetro, ondas, recargas, retorno dos heróis, unidades, cura, efeitos e limpeza. O `_process()` encaminha o delta, respeitando seleção inicial, pausa e fim da partida. Os testes podem desativar esse processamento e avançar o mesmo código em passos explícitos.
 
-As unidades procuram o inimigo vivo mais próximo dentro de seu raio de detecção. Torres e centrais não se movem. Os ataques aplicam dano imediatamente; os traços são apenas efeitos visuais, não projéteis físicos.
+As unidades procuram o inimigo vivo mais próximo dentro de seu raio de detecção. Barricadas e centrais não se movem. Os ataques aplicam dano imediatamente; os traços são apenas efeitos visuais, não projéteis físicos.
 
 `UnitActor.died` comunica derrotas ao controlador. As unidades mortas saem da lista após o passo de simulação. O jogador morto permanece oculto até ser substituído no retorno, para manter uma referência válida na interface.
 
-As duas torres protegem a central de sua equipe. Tanto a seleção automática de alvo quanto a aplicação de dano verificam essa regra. Destruir a central altera o estado para `FINISHED` e encerra o avanço da partida.
+As duas barricadas protegem a central de sua equipe. Tanto a seleção automática de alvo quanto a aplicação de dano verificam essa regra. Destruir a central altera o estado para `FINISHED` e encerra o avanço da partida.
 
 ## Dados
 
 - `FactionData`: Resource com identificadores, textos, cor e ponto de retorno.
 - `resources/factions/*.tres`: configurações de Polícia e Tráfico, editáveis no Inspector.
 - `MatchRules`: constantes de tempo, habilidades e atributos por função.
-- `UnitActor.Role`: herói, tropa, torre e central.
+- `UnitActor.Role`: herói, tropa, barricada e central.
 
 Personagens compartilham um script nesta versão. Quando houver heróis com habilidades próprias, extraia estatísticas e habilidades para Resources e cenas específicas, mantendo o controle da partida fora dessas cenas.
 
@@ -44,4 +44,10 @@ Personagens compartilham um script nesta versão. Quando houver heróis com habi
 
 `tools/capture_preview.gd` produz imagens do menu e da partida com um renderer real. O modo headless importa e testa o código, mas não valida pixels. O teste visual exige um display X11/Wayland ou equivalente.
 
-Não há servidor, salvamento de partida, persistência, física de projéteis, colisões, áudio ou integração externa. A busca de alvos percorre a lista de unidades; uma expansão grande exigirá particionamento espacial e medição de desempenho.
+A partida 2D usa movimento limitado ao corredor e ataques imediatos. Servidor de partida, persistência, física de projéteis e áudio ainda não foram implementados. A busca de alvos percorre a lista de unidades; uma expansão grande exigirá particionamento espacial e medição de desempenho.
+
+## Apresentação 3D
+
+O ambiente 3D tem colisões de terreno, casas e barricadas, com uma faixa de navegação livre dos bloqueios. `character_visual_3d.gd` controla a aparência e as articulações dos modelos, reutilizando materiais entre instâncias. `unit_preview_3d.gd` conduz a patrulha visual dos minions. Esses componentes de demonstração não aplicam dano nem executam outra simulação de combate.
+
+`barricade_3d.gd` instancia uma malha compartilhada de concreto com perfil inclinado, criada por `FieldGeometry3D`. As defesas do jogo 2D usam `UnitActor.Role.BARRICADE`, mantendo o identificador 2 e os atributos da defesa anterior. Os controles e a organização das cenas estão documentados em [ENVIRONMENT_3D.md](ENVIRONMENT_3D.md).

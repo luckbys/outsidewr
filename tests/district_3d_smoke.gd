@@ -35,6 +35,23 @@ func run() -> void:
 		and district.get_node("PointsOfInterest/TrafficCore").position.x > 0,
 		"The two factions have separate objective locations")
 	verify(get_nodes_in_group("spawn_points").size() == 2, "Both factions have explicit spawn markers")
+	verify(get_nodes_in_group("barricades").size() == 4, "Four barricade models replace the former tower markers")
+	verify(get_nodes_in_group("hero_previews").size() == 2 and get_nodes_in_group("minion_previews").size() == 6,
+		"The demonstration includes both heroes and three minions per team")
+	var concrete: MeshInstance3D = district.get_node("PointsOfInterest/PoliceBarricade2/Concrete")
+	verify(concrete.mesh is ArrayMesh and concrete.get_aabb().size.y > 1,
+		"The concrete barrier has actual sloped geometry at human scale")
+	var normals: PackedVector3Array = concrete.mesh.surface_get_arrays(0)[Mesh.ARRAY_NORMAL]
+	verify(normals[0].z < -0.9 and normals[-1].x > 0.9, "Barrier surfaces have outward-facing normals")
+	var police: Node3D = district.get_node("Units/PoliceHero/Character")
+	var traffic: Node3D = district.get_node("Units/TrafficHero/Character")
+	verify(police.get_node("Rig/Head/Helmet").visible and not traffic.get_node("Rig/Head/Helmet").visible
+		and traffic.get_node("Rig/Backpack").visible, "The factions have distinct wearable equipment")
+	var minion: Node3D = district.get_node("Units/PoliceMinion1")
+	var initial_minion_position := minion.position
+	minion._process(1.0)
+	verify(minion.position.distance_to(initial_minion_position) > 1 and minion.get_node("Character").walking,
+		"The minion preview moves along its patrol with walking enabled")
 	var camera: Camera3D = rig.get_node("Camera3D")
 	verify(camera.projection == Camera3D.PROJECTION_ORTHOGONAL and camera.current,
 		"Demo uses the active orthographic camera")
@@ -45,7 +62,7 @@ func run() -> void:
 	verify(absf(rig.position.x) <= 36 and absf(rig.position.z) <= 26,
 		"Camera pan stays inside inspection bounds")
 	rig.zoom(100)
-	verify(is_equal_approx(camera.size, 22), "Camera zoom has a near limit")
+	verify(is_equal_approx(camera.size, 12), "Camera zoom has a near limit")
 	rig.zoom(-100)
 	verify(is_equal_approx(camera.size, 110), "Camera zoom has a far limit")
 	rig.orbit(Vector2(30, 100))
@@ -64,6 +81,12 @@ func run() -> void:
 	var hit := world.direct_space_state.intersect_ray(ray)
 	verify(not hit.is_empty() and hit.collider.is_in_group("world_ground"),
 		"The terrain has an actual ground collision")
+	var checkpoint: Node3D = district.get_node("PointsOfInterest/PoliceBarricade2")
+	var checkpoint_ray := PhysicsRayQueryParameters3D.create(checkpoint.global_position + Vector3.UP * 4,
+		checkpoint.global_position - Vector3.UP)
+	var checkpoint_hit := world.direct_space_state.intersect_ray(checkpoint_ray)
+	verify(not checkpoint_hit.is_empty() and checkpoint_hit.collider.is_in_group("barricade_collision"),
+		"Barricades have an actual static collision")
 	var navigation: NavigationRegion3D = district.get_node("Navigation/Lane")
 	verify(navigation.navigation_mesh.get_polygon_count() > 0, "The lane has navigation polygons")
 	# Navigation rebuilds asynchronously after physics registration.
@@ -83,6 +106,11 @@ func run() -> void:
 		await physics_frame
 	verify(route.size() >= 2 and route[0].distance_to(route[-1]) > 50,
 		"Navigation server finds a route between the two spawns")
+	var nearest := NavigationServer3D.map_get_closest_point(world.navigation_map, checkpoint.global_position)
+	var safe_ray := PhysicsRayQueryParameters3D.create(nearest + Vector3.UP * 4, nearest - Vector3.UP)
+	var safe_hit := world.direct_space_state.intersect_ray(safe_ray)
+	verify(not safe_hit.is_empty() and safe_hit.collider.is_in_group("world_ground"),
+		"The navigable corridor stays outside the barricade collision")
 	verify(ProjectSettings.get_setting("application/run/main_scene") == "res://scenes/main.tscn",
 		"The default project entry remains the existing 2D game")
 	verify(ProjectSettings.get_setting("rendering/renderer/rendering_method") == "gl_compatibility",

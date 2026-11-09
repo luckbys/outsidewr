@@ -165,7 +165,7 @@ func _draw() -> void:
 				MatchRules.FACTIONS[unit.team].color)
 	text_at(Vector2(w - 218, 235), "AZUL / OESTE     |     CORAL / LESTE", 9, MUTED)
 	text_at(Vector2(29, 130), "01 / A DISPUTA", 12, GOLD)
-	text_at(Vector2(29, 153), "Derrube as torres. Avance à central.", 14, CREAM)
+	text_at(Vector2(29, 153), "Derrube as barricadas. Avance à central.", 14, CREAM)
 	text_at(Vector2(29, 177), "Próxima tropa: %02ds   ·   Onda %d" % [ceili(arena.wave_timer), arena.wave_number], 12, MUTED)
 	# Player card and abilities.
 	box(Rect2(24, h - 116, 359, 100), Color("112c2c"), Color("3b5146"))

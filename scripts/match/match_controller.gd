@@ -63,10 +63,10 @@ func start_match(team: int) -> void:
 		var direction := -1.0 if side == 0 else 1.0
 		spawn_unit(side, UnitActor.Role.CORE, Vector2(direction * 540, 0))
 		for x in [290, 140]:
-			spawn_unit(side, UnitActor.Role.TOWER, Vector2(direction * x, 50))
+			spawn_unit(side, UnitActor.Role.BARRICADE, Vector2(direction * x, 50))
 		spawn_hero(side)
 	hud.hide_overlay()
-	announce("Acompanhe suas tropas. Destrua as torres e depois a central rival.")
+	announce("Acompanhe suas tropas. Destrua as barricadas e depois a central rival.")
 
 func spawn_unit(team: int, role: UnitActor.Role, point: Vector2, controlled: bool = false) -> UnitActor:
 	var unit := UnitActor.new()
@@ -139,7 +139,7 @@ func nearest_enemy(source: UnitActor, radius: float) -> UnitActor:
 	for other in units:
 		if not other.alive or other.team == source.team:
 			continue
-		if other.role == UnitActor.Role.CORE and has_towers(other.team):
+		if other.role == UnitActor.Role.CORE and has_barricades(other.team):
 			continue
 		var distance := source.world_position.distance_to(other.world_position)
 		if distance < best:
@@ -147,9 +147,9 @@ func nearest_enemy(source: UnitActor, radius: float) -> UnitActor:
 			nearest = other
 	return nearest
 
-func has_towers(team: int) -> bool:
+func has_barricades(team: int) -> bool:
 	for unit in units:
-		if unit.alive and unit.team == team and unit.role == UnitActor.Role.TOWER:
+		if unit.alive and unit.team == team and unit.role == UnitActor.Role.BARRICADE:
 			return true
 	return false
 
@@ -171,8 +171,8 @@ func on_unit_died(unit: UnitActor, attacker: UnitActor) -> void:
 		winner = 1 - unit.team
 		state = State.FINISHED
 		hud.show_result(winner == player_team)
-	elif unit.role == UnitActor.Role.TOWER:
-		announce("Torre derrubada!" if unit.team != player_team else "Sua equipe perdeu uma torre!")
+	elif unit.role == UnitActor.Role.BARRICADE:
+		announce("Barricada destruída!" if unit.team != player_team else "Sua equipe perdeu uma barricada!")
 		effects.ring(unit.world_position, 80, MatchRules.FACTIONS[unit.team].color)
 
 func add_shot(from: Vector2, to: Vector2, team: int) -> void:
@@ -192,28 +192,31 @@ func command_move(point: Vector2) -> void:
 	player.destination = Iso.clamp_to_lane(point)
 	effects.ring(player.destination, 15, Color("e1d5a8"))
 
-func command_pointer() -> void:
+func command_pointer(screen_position: Vector2) -> void:
 	if not player.alive:
 		return
 	# Picking uses the visible silhouette, not just the actor's ground point.
-	var pointer := world.get_local_mouse_position()
+	var pointer := world.get_global_transform_with_canvas().affine_inverse() * screen_position
 	var target: UnitActor = null
-	var best := 45.0
+	var best := 1.0
 	for unit in units:
 		if not unit.alive or unit.team == player_team:
 			continue
-		var distance := (unit.position - Vector2(0, 25)).distance_to(pointer)
+		var person := unit.role in [UnitActor.Role.HERO, UnitActor.Role.TROOP]
+		var offset := 38.0 if person else 18.0
+		var radius := 45.0 if person else 55.0
+		var distance := (unit.position - Vector2(0, offset)).distance_to(pointer) / radius
 		if distance < best:
 			best = distance
 			target = unit
 	if target != null:
-		if target.role == UnitActor.Role.CORE and has_towers(target.team):
-			announce("A central está protegida. Destrua as duas torres primeiro.")
+		if target.role == UnitActor.Role.CORE and has_barricades(target.team):
+			announce("A central está protegida. Destrua as duas barricadas primeiro.")
 			return
 		player.attack_target = target
 		effects.ring(target.world_position, 22, MatchRules.FACTIONS[target.team].color)
 	else:
-		command_move(mouse_world_position())
+		command_move(Iso.clamp_to_lane(Iso.unproject(pointer)))
 
 func cast_pulse() -> bool:
 	if state != State.PLAYING or paused or not player.alive or pulse_timer > 0:
@@ -261,7 +264,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if state != State.PLAYING or paused:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
-		command_pointer()
+		command_pointer(event.position)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_Q: cast_pulse()

@@ -48,6 +48,13 @@ func run() -> void:
 	verify(arena.state == arena.State.PLAYING and arena.player_team == 1,
 		"Clicking the Coral button starts the selected faction")
 	verify(not arena.hud.overlay.visible, "Starting a match dismisses the selection overlay")
+	var defense: UnitActor
+	for unit in arena.units:
+		if unit.team == 0 and unit.role == UnitActor.Role.BARRICADE:
+			defense = unit
+			break
+	click(defense.get_global_transform_with_canvas() * Vector2(0, -18))
+	verify(arena.player.attack_target == defense, "Clicking a barricade selects the defensive objective")
 	key(KEY_Q)
 	verify(arena.pulse_timer > 0, "Keyboard Q dispatches to the ability")
 	key(KEY_ESCAPE)

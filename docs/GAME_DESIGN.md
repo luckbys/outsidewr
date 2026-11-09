@@ -4,7 +4,7 @@
 
 Um MOBA isométrico em uma favela brasileira fictícia, com leitura clara do combate, partidas centradas em objetivos e identidade visual brasileira. O nome e o cenário são provisórios. A primeira entrega é uma fatia jogável local para testar a rota antes de ampliar o escopo.
 
-O Morro do Sol combina tijolo aparente, reboco colorido, lajes, caixas-d'água azuis, fiação, varais, becos e uma quadra. A arte atual é vetorial e gerada pelo código; os personagens e equipamentos são silhuetas provisórias.
+O Morro do Sol combina tijolo aparente, reboco colorido, lajes, caixas-d'água azuis, fiação, varais, becos e uma quadra. O jogo 2D usa arte vetorial gerada pelo código, com personagens de proporções humanas, roupas, equipamentos e caminhada. A demonstração 3D usa modelos articulados e barricadas de concreto, pneus e sacos de areia. A direção visual permanece estilizada.
 
 ## Equipes
 
@@ -20,8 +20,8 @@ Não são reproduzidas organizações reais. A escolha é visual nesta versão: 
 1. Escolher uma equipe e aparecer perto de sua central.
 2. Acompanhar a primeira onda, que sai após 2 segundos. Novas ondas saem a cada 14 segundos.
 3. Disputar espaço e eliminar tropas com ataques e Impacto.
-4. Aproveitar a presença das tropas para pressionar as torres.
-5. Destruir as duas torres rivais para liberar o dano à central.
+4. Aproveitar a presença das tropas para pressionar as barricadas.
+5. Destruir as duas barricadas rivais para liberar o dano à central.
 6. Destruir a central e reiniciar pela tela de resultado.
 
 O corredor jogável é contínuo e sem colisores intermediários. As casas são cenário. Recuar até a própria base recupera vida; morrer impõe 8 segundos de espera. Não há perda de recursos, compras ou experiência nesta fase.

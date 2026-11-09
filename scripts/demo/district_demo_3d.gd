@@ -5,9 +5,26 @@ const MUTED := Color("adbcad")
 @onready var rig: Node3D = $CameraRig
 @onready var district: Node3D = $District
 var navigation_button: Button
+var last_label_scale := -1.0
 
 func _ready() -> void:
 	create_interface()
+	update_label_sizes()
+
+func _process(_delta: float) -> void:
+	update_label_sizes()
+
+func update_label_sizes() -> void:
+	var height := maxf(1, get_viewport().get_visible_rect().size.y)
+	var label_scale: float = rig.camera.size / height * 0.42
+	if is_equal_approx(label_scale, last_label_scale):
+		return
+	last_label_scale = label_scale
+	for point in district.get_node("PointsOfInterest").get_children():
+		if point.has_node("Label"):
+			point.get_node("Label").pixel_size = label_scale
+	for unit in district.get_node("Units").get_children():
+		unit.get_node("Character/Nameplate").pixel_size = label_scale
 
 func create_interface() -> void:
 	var layer := CanvasLayer.new()
@@ -54,6 +71,10 @@ func create_interface() -> void:
 	navigation_button.toggle_mode = true
 	button(actions, "Abrir jogo 2D", func() -> void:
 		get_tree().change_scene_to_file("res://scenes/main.tscn"))
+	button(actions, "Personagens", func() -> void:
+		rig.frame_point(Vector3(0, 0, -1.5), 14))
+	button(actions, "Barricadas", func() -> void:
+		rig.frame_point(district.get_node("PointsOfInterest/PoliceBarricade2").global_position, 12))
 
 func toggle_navigation() -> void:
 	district.get_node("Navigation/Preview").visible = navigation_button.button_pressed

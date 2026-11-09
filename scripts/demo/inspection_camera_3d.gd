@@ -4,7 +4,7 @@ extends Node3D
 const DEFAULT_YAW := 45.0
 const DEFAULT_ELEVATION := 55.0
 const DEFAULT_SIZE := 96.0
-const MIN_SIZE := 22.0
+const MIN_SIZE := 12.0
 const MAX_SIZE := 110.0
 const FOCUS_BOUNDS := Vector2(36, 26)
 
@@ -45,10 +45,10 @@ func zoom(steps: float) -> void:
 	view_size = clampf(view_size * pow(0.9, steps), MIN_SIZE, MAX_SIZE)
 	apply_view()
 
-func frame_point(point: Vector3) -> void:
+func frame_point(point: Vector3, size: float = 30.0) -> void:
 	focus = Vector3(clampf(point.x, -FOCUS_BOUNDS.x, FOCUS_BOUNDS.x), 0,
 		clampf(point.z, -FOCUS_BOUNDS.y, FOCUS_BOUNDS.y))
-	view_size = 30
+	view_size = clampf(size, MIN_SIZE, MAX_SIZE)
 	apply_view()
 
 func reset_view() -> void:
