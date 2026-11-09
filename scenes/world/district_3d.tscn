@@ -1,0 +1,933 @@
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/modules/house_block_3d.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world/modules/landmark_3d.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/world/lane_navigation_3d.gd" id="3"]
+
+[sub_resource type="BoxMesh" id="UnitBox"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(70, 0.5, 50)
+
+[sub_resource type="StandardMaterial3D" id="Ground"]
+albedo_color = Color(0.47059, 0.50588, 0.41569, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Road"]
+albedo_color = Color(0.40000, 0.43922, 0.39216, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Sidewalk"]
+albedo_color = Color(0.76863, 0.70588, 0.56863, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Line"]
+albedo_color = Color(0.87451, 0.80784, 0.61961, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Hill"]
+albedo_color = Color(0.38824, 0.46667, 0.34118, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Metal"]
+albedo_color = Color(0.27451, 0.34510, 0.30196, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Court"]
+albedo_color = Color(0.30588, 0.54510, 0.45490, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="White"]
+albedo_color = Color(0.85882, 0.87451, 0.74510, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Brick"]
+albedo_color = Color(0.72549, 0.45882, 0.32157, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Sand"]
+albedo_color = Color(0.76863, 0.65098, 0.48627, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Teal"]
+albedo_color = Color(0.40784, 0.61569, 0.56863, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Coral"]
+albedo_color = Color(0.77255, 0.50588, 0.40000, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Olive"]
+albedo_color = Color(0.59608, 0.63529, 0.50980, 1)
+roughness = 0.95
+
+
+[sub_resource type="StandardMaterial3D" id="Bulb"]
+albedo_color = Color(0.97255, 0.84706, 0.60000, 1)
+roughness = 0.95
+emission_enabled = true
+emission = Color(0.8, 0.58, 0.26, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="StandardMaterial3D" id="NavigationPreview"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.15, 0.75, 0.92, 0.28)
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.34, 0.53, 0.59, 1)
+sky_horizon_color = Color(0.8, 0.79, 0.65, 1)
+ground_bottom_color = Color(0.27, 0.36, 0.32, 1)
+ground_horizon_color = Color(0.8, 0.79, 0.65, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.76, 0.82, 0.74, 1)
+ambient_light_energy = 0.62
+reflected_light_source = 2
+tonemap_mode = 2
+
+[node name="District3D" type="Node3D" groups=["district_3d"]]
+metadata/unit_scale = "1 unit = 1 meter"
+
+[node name="Terrain" type="Node3D" parent="."]
+
+
+[node name="Ground" type="StaticBody3D" parent="Terrain" groups=["world_ground"]]
+position = Vector3(0, -0.25, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Ground"]
+position = Vector3(0, 0, 0)
+scale = Vector3(70, 0.5, 50)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Ground")
+cast_shadow = 1
+
+[node name="Collision" type="CollisionShape3D" parent="Terrain/Ground"]
+shape = SubResource("GroundShape")
+
+[node name="TerraceWest" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-0.8, -0.65, 0)
+scale = Vector3(73, 0.45, 52)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Hill")
+cast_shadow = 1
+
+[node name="Sidewalk" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(0, 0.025, 0)
+scale = Vector3(68, 0.05, 10)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Sidewalk")
+cast_shadow = 0
+
+[node name="Road" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(0, 0.065, 0)
+scale = Vector3(68, 0.04, 8)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Road")
+cast_shadow = 0
+
+[node name="CenterLine00" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-32, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine01" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-29, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine02" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-26, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine03" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-23, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine04" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-20, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine05" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-17, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine06" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-14, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine07" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-11, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine08" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-8, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine09" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-5, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine10" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-2, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine11" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(1, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine12" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(4, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine13" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(7, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine14" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(10, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine15" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(13, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine16" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(16, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine17" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(19, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine18" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(22, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine19" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(25, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine20" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(28, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="CenterLine21" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(31, 0.09, 0)
+scale = Vector3(1.25, 0.015, 0.12)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Line")
+cast_shadow = 0
+
+[node name="EdgeTerrace0" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-32, 0.35, -19)
+scale = Vector3(4, 0.7, 10)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Hill")
+cast_shadow = 1
+
+[node name="EdgeTerrace1" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(30, 0.35, 19)
+scale = Vector3(6, 0.7, 9)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Hill")
+cast_shadow = 1
+
+[node name="EdgeTerrace2" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(-23, 0.35, 22)
+scale = Vector3(11, 0.7, 3)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Hill")
+cast_shadow = 1
+
+[node name="EdgeTerrace3" type="MeshInstance3D" parent="Terrain"]
+position = Vector3(24, 0.35, -22)
+scale = Vector3(14, 0.7, 3)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Hill")
+cast_shadow = 1
+
+[node name="Buildings" type="Node3D" parent="."]
+
+
+[node name="House01" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-26, 0, -18)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.73, 4.19)
+building_height = 4.8
+facade_material = SubResource("Brick")
+water_tank = true
+
+[node name="House02" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-16, 0, -18)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.14, 4.66)
+building_height = 2.9
+facade_material = SubResource("Sand")
+water_tank = true
+
+[node name="House03" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-6, 0, -18)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.05, 4.42)
+building_height = 6.2
+facade_material = SubResource("Teal")
+water_tank = true
+
+[node name="House04" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(4, 0, -18)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.7, 4.66)
+building_height = 4.8
+facade_material = SubResource("Coral")
+water_tank = false
+
+[node name="House05" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-26, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.79, 3.98)
+building_height = 6.2
+facade_material = SubResource("Sand")
+water_tank = true
+
+[node name="House06" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-16, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.73, 4.57)
+building_height = 2.9
+facade_material = SubResource("Teal")
+water_tank = true
+
+[node name="House07" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-6, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.14, 4.34)
+building_height = 4.8
+facade_material = SubResource("Coral")
+water_tank = true
+
+[node name="House08" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(4, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.4, 4.54)
+building_height = 6.2
+facade_material = SubResource("Olive")
+water_tank = false
+
+[node name="House09" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(14, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.03, 4.46)
+building_height = 2.9
+facade_material = SubResource("Brick")
+water_tank = true
+
+[node name="House10" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(24, 0, -10)
+rotation = Vector3(0, 0, 0)
+footprint = Vector2(4.56, 4.38)
+building_height = 2.9
+facade_material = SubResource("Sand")
+water_tank = true
+
+[node name="House11" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-26, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.66, 4.31)
+building_height = 6.2
+facade_material = SubResource("Teal")
+water_tank = true
+
+[node name="House12" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-16, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.94, 4.18)
+building_height = 5.5
+facade_material = SubResource("Coral")
+water_tank = false
+
+[node name="House13" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-6, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.06, 4.66)
+building_height = 4.8
+facade_material = SubResource("Olive")
+water_tank = true
+
+[node name="House14" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(4, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(5.03, 4.15)
+building_height = 4.8
+facade_material = SubResource("Brick")
+water_tank = true
+
+[node name="House15" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(14, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.67, 3.94)
+building_height = 6.2
+facade_material = SubResource("Sand")
+water_tank = true
+
+[node name="House16" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(24, 0, 10)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.08, 4.29)
+building_height = 2.9
+facade_material = SubResource("Teal")
+water_tank = false
+
+[node name="House17" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-26, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.05, 4.0)
+building_height = 2.9
+facade_material = SubResource("Coral")
+water_tank = true
+
+[node name="House18" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-16, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.94, 4.09)
+building_height = 2.9
+facade_material = SubResource("Olive")
+water_tank = true
+
+[node name="House19" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(-6, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.86, 4.65)
+building_height = 6.2
+facade_material = SubResource("Brick")
+water_tank = true
+
+[node name="House20" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(4, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.64, 3.84)
+building_height = 6.2
+facade_material = SubResource("Sand")
+water_tank = false
+
+[node name="House21" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(14, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.74, 4.51)
+building_height = 2.9
+facade_material = SubResource("Teal")
+water_tank = true
+
+[node name="House22" parent="Buildings" instance=ExtResource("1")]
+position = Vector3(24, 0, 18)
+rotation = Vector3(0, 3.141593, 0)
+footprint = Vector2(4.75, 4.05)
+building_height = 4.8
+facade_material = SubResource("Coral")
+water_tank = true
+
+[node name="Decoration" type="Node3D" parent="."]
+
+
+[node name="Court" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(18, 0.025, -18)
+scale = Vector3(14, 0.05, 8)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Court")
+cast_shadow = 0
+
+[node name="CourtLine0" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(11.3, 0.065, -18)
+scale = Vector3(0.08, 0.025, 7.2)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 0
+
+[node name="CourtLine1" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(24.7, 0.065, -18)
+scale = Vector3(0.08, 0.025, 7.2)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 0
+
+[node name="CourtLine2" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(18, 0.065, -21.6)
+scale = Vector3(13.4, 0.025, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 0
+
+[node name="CourtLine3" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(18, 0.065, -14.4)
+scale = Vector3(13.4, 0.025, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 0
+
+[node name="CourtLine4" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(18, 0.065, -18)
+scale = Vector3(0.08, 0.025, 7.2)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 0
+
+[node name="Goal0" type="Node3D" parent="Decoration"]
+position = Vector3(11.4, 0, -18)
+
+[node name="Post0" type="MeshInstance3D" parent="Decoration/Goal0"]
+position = Vector3(0, 0.7, -1.1)
+scale = Vector3(0.07, 1.4, 0.07)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="Post1" type="MeshInstance3D" parent="Decoration/Goal0"]
+position = Vector3(0, 0.7, 1.1)
+scale = Vector3(0.07, 1.4, 0.07)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="Crossbar" type="MeshInstance3D" parent="Decoration/Goal0"]
+position = Vector3(0, 1.4, 0)
+scale = Vector3(0.07, 0.07, 2.3)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="Goal1" type="Node3D" parent="Decoration"]
+position = Vector3(24.6, 0, -18)
+
+[node name="Post0" type="MeshInstance3D" parent="Decoration/Goal1"]
+position = Vector3(0, 0.7, -1.1)
+scale = Vector3(0.07, 1.4, 0.07)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="Post1" type="MeshInstance3D" parent="Decoration/Goal1"]
+position = Vector3(0, 0.7, 1.1)
+scale = Vector3(0.07, 1.4, 0.07)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="Crossbar" type="MeshInstance3D" parent="Decoration/Goal1"]
+position = Vector3(0, 1.4, 0)
+scale = Vector3(0.07, 0.07, 2.3)
+mesh = SubResource("UnitBox")
+material_override = SubResource("White")
+cast_shadow = 1
+
+[node name="StreetLamp0_0" type="Node3D" parent="Decoration"]
+position = Vector3(-27, 0, -5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp0_0"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp0_0"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp0_0"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp0_1" type="Node3D" parent="Decoration"]
+position = Vector3(-27, 0, 5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp0_1"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp0_1"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp0_1"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp1_0" type="Node3D" parent="Decoration"]
+position = Vector3(-9, 0, -5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp1_0"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp1_0"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp1_0"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp1_1" type="Node3D" parent="Decoration"]
+position = Vector3(-9, 0, 5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp1_1"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp1_1"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp1_1"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp2_0" type="Node3D" parent="Decoration"]
+position = Vector3(9, 0, -5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp2_0"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp2_0"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp2_0"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp2_1" type="Node3D" parent="Decoration"]
+position = Vector3(9, 0, 5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp2_1"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp2_1"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp2_1"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp3_0" type="Node3D" parent="Decoration"]
+position = Vector3(27, 0, -5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp3_0"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp3_0"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp3_0"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="StreetLamp3_1" type="Node3D" parent="Decoration"]
+position = Vector3(27, 0, 5.2)
+
+[node name="Pole" type="MeshInstance3D" parent="Decoration/StreetLamp3_1"]
+position = Vector3(0, 2.4, 0)
+scale = Vector3(0.1, 4.8, 0.1)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Arm" type="MeshInstance3D" parent="Decoration/StreetLamp3_1"]
+position = Vector3(0.45, 4.65, 0)
+scale = Vector3(0.9, 0.08, 0.08)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lamp" type="MeshInstance3D" parent="Decoration/StreetLamp3_1"]
+position = Vector3(0.83, 4.59, 0)
+scale = Vector3(0.32, 0.13, 0.22)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Bulb")
+cast_shadow = 0
+
+[node name="Bench0" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(-20, 0.48, -5.5)
+scale = Vector3(1.9, 0.15, 0.6)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Sand")
+cast_shadow = 1
+
+[node name="BenchLeg0_0" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(-20.65, 0.22, -5.5)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="BenchLeg0_1" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(-19.35, 0.22, -5.5)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Bench1" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(2, 0.48, 5.6)
+scale = Vector3(1.9, 0.15, 0.6)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Sand")
+cast_shadow = 1
+
+[node name="BenchLeg1_0" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(1.35, 0.22, 5.6)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="BenchLeg1_1" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(2.65, 0.22, 5.6)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Bench2" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(21, 0.48, 5.5)
+scale = Vector3(1.9, 0.15, 0.6)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Sand")
+cast_shadow = 1
+
+[node name="BenchLeg2_0" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(20.35, 0.22, 5.5)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="BenchLeg2_1" type="MeshInstance3D" parent="Decoration"]
+position = Vector3(21.65, 0.22, 5.5)
+scale = Vector3(0.12, 0.44, 0.45)
+mesh = SubResource("UnitBox")
+material_override = SubResource("Metal")
+cast_shadow = 1
+
+[node name="Lighting" type="Node3D" parent="."]
+
+
+[node name="Environment" type="WorldEnvironment" parent="Lighting"]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="Lighting"]
+rotation_degrees = Vector3(-58, -32, 0)
+light_color = Color(1, 0.89, 0.73, 1)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_max_distance = 110.0
+
+[node name="Navigation" type="Node3D" parent="."]
+
+
+[node name="Lane" type="NavigationRegion3D" parent="Navigation"]
+script = ExtResource("3")
+lane_length = 60.0
+lane_width = 8.0
+
+[node name="Preview" type="MeshInstance3D" parent="Navigation"]
+position = Vector3(0, 0.12, 0)
+scale = Vector3(60, 0.02, 8)
+mesh = SubResource("UnitBox")
+material_override = SubResource("NavigationPreview")
+cast_shadow = 0
+visible = false
+
+[node name="PointsOfInterest" type="Node3D" parent="."]
+
+
+[node name="PoliceCore" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(-27, 0.08, 0)
+label_text = "CENTRAL AZUL"
+accent = Color(0.34, 0.74, 0.91, 1)
+column_height = 1.2
+
+[node name="PoliceTower1" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(-14.5, 0.08, 2.5)
+label_text = "TORRE AZUL"
+accent = Color(0.34, 0.74, 0.91, 1)
+column_height = 2.2
+
+[node name="PoliceTower2" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(-7.0, 0.08, 2.5)
+label_text = "TORRE AZUL"
+accent = Color(0.34, 0.74, 0.91, 1)
+column_height = 2.2
+
+[node name="PoliceSpawn" type="Marker3D" parent="PointsOfInterest" groups=["spawn_points"]]
+position = Vector3(-25.5, 0.06, -1.5)
+
+[node name="TrafficCore" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(27, 0.08, 0)
+label_text = "CENTRAL CORAL"
+accent = Color(0.96, 0.48, 0.35, 1)
+column_height = 1.2
+
+[node name="TrafficTower1" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(14.5, 0.08, 2.5)
+label_text = "TORRE CORAL"
+accent = Color(0.96, 0.48, 0.35, 1)
+column_height = 2.2
+
+[node name="TrafficTower2" parent="PointsOfInterest" instance=ExtResource("2")]
+position = Vector3(7.0, 0.08, 2.5)
+label_text = "TORRE CORAL"
+accent = Color(0.96, 0.48, 0.35, 1)
+column_height = 2.2
+
+[node name="TrafficSpawn" type="Marker3D" parent="PointsOfInterest" groups=["spawn_points"]]
+position = Vector3(25.5, 0.06, -1.5)
+
+[node name="Center" type="Marker3D" parent="PointsOfInterest" groups=["points_of_interest"]]
+position = Vector3(0, 0.06, 0)

@@ -14,6 +14,12 @@ O jogo fica disponível por HTTP na **porta 8080** do host. O Dockerfile testa e
 
 Consulte [execução e publicação com Docker](docs/DOCKER.md) para configuração de porta, logs, build sem Compose e uso em redes com proxy.
 
+## Ambiente 3D independente
+
+Abra [`scenes/demo_3d.tscn`](scenes/demo_3d.tscn) no Godot e pressione **F6** para explorar o Morro do Sol em 3D. Use WASD para mover a câmera, Q/E ou o botão direito para girar, a roda para zoom e Home para restaurar a vista. O mapa editável está em [`scenes/world/district_3d.tscn`](scenes/world/district_3d.tscn).
+
+O **F5** continua abrindo o protótipo 2D. Após atualizar a imagem Docker, a demonstração é servida em **`/3d/`**, enquanto a partida 2D permanece em **`/`**. Veja [estrutura, controles e exportação 3D](docs/ENVIRONMENT_3D.md).
+
 ## Abrir e jogar
 
 1. Instale o **Godot 4.6.x Standard**, com GDScript. A versão usada na validação foi **4.6.3**; não é necessário .NET.
@@ -82,13 +88,14 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **36 verificações**: 29 de simulação e 7 de interface. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa e seleção de facção por clique.
+Esse comando importa o projeto e executa **62 verificações**: 29 de simulação, 7 de interface e 26 do ambiente 3D. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera e uma rota de navegação entre as bases.
 
 Para executar separadamente:
 
 ```bash
 bash tools/godot.sh --headless --script tests/match_smoke.gd
 bash tools/godot.sh --headless --script tests/input_smoke.gd
+bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 ```
 
 O teste de partida completa acelera o tempo e dirige um herói que avança e usa Q; ele verifica se esse comportamento consegue vencer em até 20 minutos simulados. Não substitui playtesting de equilíbrio ou teste de multiplayer.

@@ -2,6 +2,8 @@
 
 O Dockerfile compila a versão HTML5 a partir do código do projeto e serve o jogo com Nginx na porta **8080**. A máquina que executa o contêiner precisa de Docker; não precisa instalar Godot ou Python no host.
 
+A raiz `/` abre a partida 2D e `/3d/` abre a demonstração independente do ambiente 3D. As duas versões são exportadas no build da imagem. Para os controles de exploração e a organização do cenário, veja [ENVIRONMENT_3D.md](ENVIRONMENT_3D.md).
+
 ## Com Docker Compose
 
 Na raiz do repositório:
