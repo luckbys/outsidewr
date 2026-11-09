@@ -35,6 +35,21 @@ docker run --rm -p 8080:8080 morro-em-disputa:local
 
 Em um painel de hospedagem com suporte a Dockerfile, selecione a raiz deste repositório como contexto de build, o arquivo `Dockerfile` e a porta interna **8080**. Configure o domínio e o HTTPS no painel ou no proxy da hospedagem.
 
+### EasyPanel
+
+No serviço da aplicação:
+
+1. Selecione a branch com o Dockerfile (`codex/morro-em-disputa`, enquanto as alterações não forem integradas à branch principal) e execute o deploy.
+2. Em **Domínios**, confira se o domínio aponta para esse serviço, com caminho `/` e porta de destino **8080**.
+3. Use **HTTP** na conexão do proxy ao contêiner. O HTTPS do domínio é terminado pelo EasyPanel; o Nginx interno atende HTTP.
+4. Salve a configuração e abra o domínio HTTPS novamente.
+
+A imagem anuncia somente `8080/tcp` para evitar que a detecção automática escolha a porta 80. O encaminhamento de um domínio já cadastrado precisa ser conferido no painel, mesmo depois de atualizar a imagem.
+
+Linhas de log com `127.0.0.1`, `Wget` e `GET /index.html` são requisições do healthcheck. Elas confirmam a resposta interna do HTML. Ao abrir o domínio no navegador, o log deve mostrar também as requisições do navegador para a página, `index.js`, `index.wasm` e `index.pck`. Se aparecer apenas o Wget, verifique o domínio e o encaminhamento no painel.
+
+Se o HTML abrir e o carregamento travar, confira o erro mostrado na página ou no Console/Network do navegador. O Godot exige HTTPS no acesso público e suporte a WebGL 2. Verifique se os arquivos `.wasm` e `.pck` retornam 200; não troque essas respostas por HTML.
+
 ## O que a imagem faz
 
 1. O estágio de build instala Godot **4.6.3**, verificando o SHA-512 oficial do editor. Seleciona o editor conforme a arquitetura da máquina de build (`amd64` ou `arm64`).

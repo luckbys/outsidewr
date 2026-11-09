@@ -68,7 +68,8 @@ fi
 bash tools/export_web.sh
 SH
 
-FROM nginx:1.28-alpine AS runtime
+# This base exposes only 8080, so hosting panels cannot auto-select port 80.
+FROM nginxinc/nginx-unprivileged:1.28-alpine AS runtime
 COPY --chmod=644 docker/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build --chown=nginx:nginx /app/builds/web/ /usr/share/nginx/html/
 USER nginx
