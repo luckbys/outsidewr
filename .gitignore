@@ -1,0 +1,6 @@
+# Godot generates these locally.
+.godot/
+*.tmp
+*.log
+builds/
+.DS_Store
