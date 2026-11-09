@@ -4,3 +4,4 @@
 *.log
 builds/
 .DS_Store
+__pycache__/

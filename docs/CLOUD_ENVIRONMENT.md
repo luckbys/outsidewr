@@ -22,6 +22,7 @@ O setup verifica a versão, importa os assets e roda os dois testes de integraç
 3. Com um desktop disponível, abra `bash tools/godot.sh --editor` e use F5; ou execute `bash tools/godot.sh` para iniciar o jogo.
 4. Sem desktop, use os testes headless. Não apresente isso como sessão gráfica interativa.
 5. Para gerar a versão HTML5, use `bash tools/export_web.sh`. A versão web e a publicação por hospedagem estática estão descritas em [WEB.md](WEB.md). O ambiente não oferece link público automático para um servidor HTTP local.
+6. Para compilar e iniciar o servidor em Docker, siga [DOCKER.md](DOCKER.md). Nesta rede, forneça o bundle de CAs como secret no build e use `docker compose up -d --no-build`. A porta interna é 8080; confirme a saúde do contêiner e a resposta do jogo, sem presumir que o processo esteja ativo em uma nova tarefa.
 
 As capturas desta entrega foram feitas com um display X11 virtual e o renderer Compatibility / Mesa llvmpipe. Esses processos temporários não são requisitos do jogo e não devem ser presumidos ativos em novas tarefas.
 
