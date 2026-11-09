@@ -2,6 +2,8 @@
 
 O projeto tem um preset **Web**, com Godot 4.6.3, WebGL 2 e WebAssembly. O jogo continua local contra um bot; abrir por uma URL não cria multiplayer.
 
+Para executar na hospedagem usando Dockerfile, veja [DOCKER.md](DOCKER.md). `docker compose up --build -d` compila o projeto e inicia o servidor na porta 8080.
+
 ## Gerar a versão web
 
 ```bash

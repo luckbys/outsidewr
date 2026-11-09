@@ -4,6 +4,16 @@ Base jogável de um **MOBA 2D isométrico em Godot 4.6**, ambientado no Morro do
 
 ![Partida no Morro do Sol](docs/images/match.png)
 
+## Rodar com Docker
+
+```bash
+docker compose up --build -d
+```
+
+O jogo fica disponível por HTTP na **porta 8080** do host. O Dockerfile testa e exporta o projeto com Godot 4.6.3 e serve os arquivos com Nginx; não é necessário instalar Godot na hospedagem. Configure o domínio do seu provedor para encaminhar à porta 8080.
+
+Consulte [execução e publicação com Docker](docs/DOCKER.md) para configuração de porta, logs, build sem Compose e uso em redes com proxy.
+
 ## Abrir e jogar
 
 1. Instale o **Godot 4.6.x Standard**, com GDScript. A versão usada na validação foi **4.6.3**; não é necessário .NET.

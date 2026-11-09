@@ -1,0 +1,14 @@
+.git
+.github
+.godot
+builds
+docs
+export_templates
+feature_profiles
+script_templates
+text_editor_themes
+**/__pycache__
+*.log
+*.tmp
+.env
+.env.*
