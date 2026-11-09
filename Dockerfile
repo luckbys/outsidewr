@@ -66,11 +66,14 @@ if [ -f /run/secrets/proxy_ca ]; then
     export SSL_CERT_FILE=/run/secrets/proxy_ca
 fi
 bash tools/export_web.sh
+bash tools/export_web.sh Web3D
 SH
 
-FROM nginx:1.28-alpine AS runtime
+# This base exposes only 8080, so hosting panels cannot auto-select port 80.
+FROM nginxinc/nginx-unprivileged:1.28-alpine AS runtime
 COPY --chmod=644 docker/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build --chown=nginx:nginx /app/builds/web/ /usr/share/nginx/html/
+COPY --from=build --chown=nginx:nginx /app/builds/web-3d/ /usr/share/nginx/html/3d/
 USER nginx
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
