@@ -13,3 +13,5 @@ bash "$tools_dir/godot.sh" --headless --script tests/district_3d_smoke.gd
 bash "$tools_dir/godot.sh" --headless --script tests/hud_smoke.gd
 bash "$tools_dir/godot.sh" --headless --script tests/mechanics_smoke.gd
 bash "$tools_dir/godot.sh" --headless --script tests/presentation_smoke.gd
+bash "$tools_dir/godot.sh" --headless --script tests/tripo_assets_smoke.gd
+python3 -m unittest discover -s "$tools_dir/../tests" -p 'test_tripo_assets.py'

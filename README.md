@@ -68,6 +68,18 @@ Avance com os minions: as defesas priorizam tropas ao escolher um alvo, mas pass
 
 A [documentação da HUD](docs/HUD.md) explica os indicadores, as ações e os controles da interface 3D.
 
+## Assets com Tripo
+
+A integração com a **Tripo API v3** está preparada para gerar duas casas, barricada, caixa-d'água, heróis e minions. Os modelos locais substituem os visuais procedurais conforme forem disponibilizados; o jogo não usa a chave da API em tempo de execução.
+
+```bash
+python3 tools/tripo_assets.py plan
+# Com TRIPO_API_KEY configurada e acesso à API:
+python3 tools/tripo_assets.py generate --asset house_brick
+```
+
+Nenhum GLB real foi gerado nesta etapa: a chave `triploapi` e a rede estão disponíveis, mas a Tripo recusou a criação com **code 2010 — créditos insuficientes**. Veja [configuração, prompts, geração e retomada](docs/TRIPO_ASSETS.md).
+
 Esta versão é **local e para um jogador**, com arte procedural estilizada. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final. A apresentação usa geometria e materiais 3D; movimento e alcance continuam no plano lógico da simulação existente.
 
 ## Organização
@@ -98,7 +110,7 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **151 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D, 23 da HUD, 39 das mecânicas e 18 da apresentação. Inclui partidas completas com as duas facções, habilidades, defesas, recuo do bot, pausa, navegação e alinhamento da câmera 3D com os comandos em quatro tamanhos de janela.
+Esse comando importa o projeto e executa **187 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D, 23 da HUD, 39 das mecânicas, 18 da apresentação, 12 da integração Tripo no Godot e 24 testes Python offline do cliente da API. Os testes Tripo usam fixtures locais e não consomem créditos.
 
 Para executar separadamente:
 
@@ -109,6 +121,8 @@ bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 bash tools/godot.sh --headless --script tests/hud_smoke.gd
 bash tools/godot.sh --headless --script tests/mechanics_smoke.gd
 bash tools/godot.sh --headless --script tests/presentation_smoke.gd
+bash tools/godot.sh --headless --script tests/tripo_assets_smoke.gd
+python3 -m unittest discover -s tests -p 'test_tripo_assets.py'
 ```
 
 O teste de partida completa acelera o tempo e dirige um herói que avança e usa Q; ele verifica se esse comportamento consegue vencer em até 20 minutos simulados. Não substitui playtesting de equilíbrio ou teste de multiplayer.

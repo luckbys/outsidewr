@@ -20,6 +20,9 @@ const SKIN := [Color("b58161"), Color("825a44"), Color("d0a080"), Color("684a3b"
 const STREET := [Color("4e5650"), Color("555153"), Color("68614f"), Color("414b54")]
 var phase := 0.0
 static var palette: Dictionary = {}
+var generated: Node3D
+var generated_player: AnimationPlayer
+var generated_walk: StringName = &""
 
 func _ready() -> void:
 	phase = variation * 1.7 + team * 0.4
@@ -70,6 +73,13 @@ func update_appearance() -> void:
 	$Nameplate.visible = hero
 	$Nameplate.text = "AGENTE" if team == 0 else "OLHEIRO"
 	$Selection.material_override = accent
+	var id := ("police_" if team == 0 else "traffic_") + ("hero" if hero else "minion")
+	generated = TripoAssetLibrary.mount(self, id, Vector3(0, 1.85 if hero else 1.78, 0))
+	$Rig.visible = generated == null
+	generated_player = TripoAssetLibrary.animation_player(generated) if generated != null else null
+	generated_walk = TripoAssetLibrary.walk_clip(generated_player)
+	if generated_player != null:
+		generated_player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	apply_pose(0)
 
 func _process(delta: float) -> void:
@@ -79,6 +89,9 @@ func _process(delta: float) -> void:
 	apply_pose(phase)
 
 func apply_pose(time: float) -> void:
+	if generated != null:
+		TripoAssetLibrary.pose_walk(generated_player, generated_walk, time, walking)
+		return
 	var stride := sin(time) * 0.36 if walking else 0.0
 	$Rig/LeftLeg.rotation.x = stride
 	$Rig/RightLeg.rotation.x = -stride

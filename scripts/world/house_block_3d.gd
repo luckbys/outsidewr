@@ -58,6 +58,18 @@ func update_layout() -> void:
 	$Collision/Shape.shape = shape
 	$Collision/Shape.position.y = building_height * 0.5
 	build_details()
+	apply_tripo_models()
+
+func apply_tripo_models() -> void:
+	var variant := posmod(roundi(position.x * 3 + position.z * 5), 6)
+	var id := "house_brick" if variant in [0, 2, 5] else "house_plaster"
+	var model := TripoAssetLibrary.mount(self, id, Vector3(footprint.x, building_height + 0.5, footprint.y))
+	$Body.visible = model == null
+	$Roof.visible = model == null
+	$Details.visible = model == null
+	var tank := TripoAssetLibrary.mount($WaterTank, "water_tank", Vector3(1.12, 1.05, 1.12))
+	$WaterTank/Container.visible = tank == null
+	$WaterTank/Lid.visible = tank == null
 
 func build_details() -> void:
 	var previous := get_node_or_null("Details")

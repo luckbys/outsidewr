@@ -64,6 +64,8 @@ O viewport usa escala de conteúdo desativada para manter o texto legível em pi
 
 `tests/presentation_smoke.gd` verifica a projeção 3D contra `Iso.project()` em quatro tamanhos de janela, seleção dos modelos, sincronização de unidades, entulho, fumaça, pausa, reinício, retorno e alternância para 2D.
 
+`tools/tripo_assets.py` implementa o fluxo offline de geração Tripo v3 e grava somente GLBs validados em `assets/models/tripo/`. `TripoAssetLibrary` carrega esses arquivos locais, preserva a hierarquia importada e normaliza escala e origem. Casas, barricadas e personagens usam os modelos procedurais quando não há GLB correspondente. Animações importadas recebem tempo explícito pela simulação, sem avançar na pausa. Os testes Python usam respostas simuladas e `tests/tripo_assets_smoke.gd` verifica a integração com cenas locais; nenhum teste submete tarefas pagas.
+
 `tools/capture_preview.gd` produz imagens do menu e da partida com um renderer real. O modo headless importa e testa o código, mas não valida pixels. O teste visual exige um display X11/Wayland ou equivalente.
 
 A simulação usa movimento limitado ao corredor e dano sem projéteis físicos, incluindo a preparação dos disparos defensivos. Servidor de partida, persistência e áudio ainda não foram implementados. A busca de alvos percorre a lista de unidades; uma expansão grande exigirá particionamento espacial e medição de desempenho.

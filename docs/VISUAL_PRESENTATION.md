@@ -20,7 +20,7 @@ A demo em `scenes/demo_3d.tscn` e **`/3d/`** continua disponível para inspeçã
 
 `1 unidade lógica = 0,05 m` na apresentação. A câmera ortográfica a 30° reproduz a projeção de `Iso.project()`, incluindo enquadramento e deslocamento da tela. Isso mantém cliques, direção do WASD, minimapa e indicadores de alcance alinhados.
 
-O renderer continua sendo **Compatibility**, com MSAA 2× na apresentação principal. A cena usa geometria e materiais procedurais, sem modelos, fotografias ou serviços externos. O resultado é uma aproximação estilizada da referência; não é uma reprodução fotográfica.
+O renderer continua sendo **Compatibility**, com MSAA 2× na apresentação principal. A cena padrão usa geometria e materiais procedurais. A [integração Tripo](TRIPO_ASSETS.md) permite substituir os componentes por GLBs locais gerados previamente; nenhum serviço externo é chamado durante a partida. O resultado procedural é uma aproximação estilizada da referência; não é uma reprodução fotográfica.
 
 ## Validação
 

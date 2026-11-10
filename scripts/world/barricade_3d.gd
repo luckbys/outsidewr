@@ -33,3 +33,7 @@ func update_visuals() -> void:
 	paint.roughness = 0.8
 	$TeamPlate.material_override = paint
 	$Label.text = label_text
+	var model := TripoAssetLibrary.mount(self, "barricade", Vector3(3.4, 1.1, 1.1))
+	for child in get_children():
+		if child is MeshInstance3D:
+			child.visible = model == null

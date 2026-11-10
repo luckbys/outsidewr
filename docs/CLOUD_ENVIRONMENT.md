@@ -13,7 +13,9 @@ bash tools/setup.sh
 
 O helper `tools/godot.sh` encaminha os arquivos de dados, configuração e cache para `/workspace/.godot-runtime`. Isso evita os diretórios de HOME sem permissão de escrita nesta máquina. Fora de `/workspace`, usa um diretório sob o cache do usuário. `MORRO_RUNTIME_DIR` e `GODOT_BIN` permitem substituições explícitas.
 
-O setup verifica a versão, importa os assets e roda seis suítes de integração: simulação, entrada, ambiente 3D, HUD, mecânicas e apresentação. Pode ser repetido sem alterar código, recursos ou regras de balanceamento. `.godot/` é cache local ignorado pelo Git; os arquivos `.uid` dos scripts devem acompanhar o projeto.
+O setup verifica a versão, importa os assets e roda sete suítes Godot e uma suíte Python, incluindo a integração Tripo com fixtures offline. Pode ser repetido sem alterar código, recursos ou regras de balanceamento. `.godot/` é cache local ignorado pelo Git; os arquivos `.uid` dos scripts devem acompanhar o projeto.
+
+O cliente Tripo reutiliza o cadastro `triploapi` e aceita também `TRIPO_API_KEY`. A chave e o domínio `openapi.tripo3d.ai` estão disponíveis; a tentativa real de gerar a primeira casa foi recusada com `code=2010`, por créditos insuficientes. As ferramentas de configuração retornaram `INVALID_ARGUMENT`; os requisitos foram reconhecidos posteriormente na configuração ativa. A API não é necessária para jogar, testar ou compilar os modelos procedurais. Siga [TRIPO_ASSETS.md](TRIPO_ASSETS.md).
 
 ## Início de uma nova tarefa
 

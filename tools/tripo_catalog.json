@@ -1,0 +1,58 @@
+{
+  "provider": "Tripo3D",
+  "api_root": "https://openapi.tripo3d.ai/v3",
+  "model": "P2-20260801",
+  "rig_model": "v3.0-20260909",
+  "face_limit": 5000,
+  "texture": true,
+  "assets": [
+    {
+      "id": "house_brick",
+      "label": "Casa de tijolo aparente",
+      "animate": false,
+      "prompt": "One standalone modular Brazilian favela house for an isometric MOBA, fictional Morro do Sol district. Two storeys, exposed weathered red clay bricks, visible gray concrete columns and floor beams, flat concrete rooftop with low parapet, recessed dark windows with simple metal grilles, worn metal street door, subtle cracks and rain stains. Realistic human scale, believable construction and clean PBR textures, muted earthy colors and baked surface detail. Closed exterior building, no interior, no people, no vehicle, no street, no landscape, no blue water tank, no antenna, no text, no logos. Straight walls and a flat ground base, optimized watertight game mesh, readable silhouette from an isometric camera, one isolated object centered at ground level."
+    },
+    {
+      "id": "house_plaster",
+      "label": "Casa com reboco gasto",
+      "animate": false,
+      "prompt": "One standalone single-storey Brazilian favela house for the fictional Morro do Sol isometric MOBA. Faded warm ochre plaster with chipped patches exposing red brick, gray concrete corner pillars, dark recessed rectangular windows with modest metal grilles, worn wooden front door, flat rooftop with a low parapet, small corrugated galvanized roof section. Realistic weathering and restrained PBR material detail, natural proportions, low polygon game asset. Closed exterior, no interior, no people, no vegetation, no terrain, no water tank, no cables, no text, no logos. Rectangular footprint, isolated building centered on a flat ground base."
+    },
+    {
+      "id": "barricade",
+      "label": "Barricada de concreto",
+      "animate": false,
+      "prompt": "One compact defensive checkpoint barricade for a fictional Brazilian favela MOBA. A long low Jersey concrete barrier with a sloping profile, chipped gray concrete, worn alternating charcoal and faded ochre reflective stripes, a few stacked beige sandbags and two old black tires at its base. Believable 1.1 meter height, approximately 3.4 meters long, realistic PBR textures and moderate wear. No tower, no building, no people, no terrain, no weapons, no police insignia, no lettering, no logos, no floating pieces. One isolated cohesive low polygon prop, ground origin, suitable for an isometric game."
+    },
+    {
+      "id": "water_tank",
+      "label": "Caixa-d'água azul",
+      "animate": false,
+      "prompt": "One Brazilian rooftop polyethylene water tank, approximately one meter tall and one meter in diameter. A muted dark blue ribbed cylindrical tank with a fitted round lid and subtle sun faded streaks, lightly weathered but intact, realistic PBR plastic with broad horizontal reinforcing ribs. One isolated low polygon game prop with a clean silhouette, centered at ground level, no rooftop, no pipes extending out, no people, no text, no brand, no background."
+    },
+    {
+      "id": "police_hero",
+      "label": "Herói da equipe azul",
+      "animate": true,
+      "prompt": "A full body adult Brazilian fictional urban patrol game hero, medium brown skin, realistic adult human proportions, dark navy uniform, simple charcoal protective vest, matte dark helmet, boots, utility belt and a compact radio. Small muted blue shoulder patches identify the blue team. Worn cloth and equipment with realistic PBR surface detail, readable isometric game silhouette, optimized low polygon humanoid. Neutral symmetrical A pose with arms clearly separated from the torso, relaxed straight legs and feet apart, empty separated hands, all limbs visible and suitable for automatic biped rigging. No real organization insignia, no lettering, no logos, no weapons, no floor or background, one isolated character facing forward."
+    },
+    {
+      "id": "traffic_hero",
+      "label": "Herói da equipe coral",
+      "animate": true,
+      "prompt": "A full body adult fictional Brazilian urban street faction game hero, dark brown skin, realistic adult human proportions, weathered olive gray T-shirt, simple dark vest, dark gray trousers, worn boots, plain cap and a compact backpack. A small coral armband identifies the coral team. Natural cloth folds, restrained realistic PBR textures, readable isometric silhouette, optimized low polygon humanoid. Neutral symmetrical A pose, arms clearly separated from the torso, relaxed straight legs and feet apart, empty separated hands, all limbs visible for automatic biped rigging. No real gang symbols, no lettering, no logos, no weapons, no terrain or background, one isolated character facing forward."
+    },
+    {
+      "id": "police_minion",
+      "label": "Minion da equipe azul",
+      "animate": true,
+      "prompt": "A full body adult fictional Brazilian blue-team patrol minion for an isometric MOBA. Medium brown skin, realistic adult proportions, plain navy work uniform, basic dark protective vest, simple navy cap, dark boots and small blue upper arm patches. Simpler equipment than a hero, muted realistic PBR cloth and leather textures, clean low polygon humanoid. Neutral symmetrical A pose with arms away from the torso, feet apart, empty separated hands, all body parts clearly visible for automatic biped rigging. No real organization markings, no text, no logos, no weapons, no terrain, no background. One isolated character facing forward."
+    },
+    {
+      "id": "traffic_minion",
+      "label": "Minion da equipe coral",
+      "animate": true,
+      "prompt": "A full body adult fictional Brazilian coral-team street minion for an isometric MOBA. Dark brown skin, realistic adult proportions, faded charcoal T-shirt, dark olive trousers, plain cap, worn shoes and one small coral upper arm band. Simple everyday clothing with no hero backpack or heavy equipment, realistic PBR cloth, optimized low polygon biped silhouette. Neutral symmetrical A pose with arms separated from the torso, feet apart, empty separated hands, all limbs fully visible and suitable for automatic rigging. No real gang symbols, no lettering, no logos, no weapons, no floor or background, one isolated character facing forward."
+    }
+  ]
+}
