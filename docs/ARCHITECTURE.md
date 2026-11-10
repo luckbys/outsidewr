@@ -13,6 +13,10 @@ MatchController
 └── Interface / HUD       menu, minimapa, ações, pausa, resultado
 ```
 
+`MatchView3D` acrescenta um `SubViewport` com mundo próprio antes da camada `World`. Observa as mesmas unidades e instancia seus modelos; não resolve combate. O desenho de `District` e `Actors` fica oculto nesse modo, enquanto os efeitos continuam alinhados pela mesma projeção. F2 alterna as representações. O panorama de fundo tem outro viewport, atualizado uma única vez.
+
+`match_world_overlay.gd` projeta as barras de vida sobre os modelos. `MorroMaterials` compartilha texturas e materiais; `MorroMeshBatch` agrupa detalhes e a geometria estática da instância de gameplay. A construção está descrita em [VISUAL_PRESENTATION.md](VISUAL_PRESENTATION.md).
+
 ## Coordenadas
 
 As posições de jogo são `Vector2` em um plano lógico. `Iso.project()` converte esse plano para a tela; `Iso.unproject()` converte cliques de volta. Alcance, dano, IA e deslocamento usam exclusivamente o plano lógico. A escala do mundo não altera atributos ou distâncias de combate.
@@ -58,12 +62,14 @@ O viewport usa escala de conteúdo desativada para manter o texto legível em pi
 
 `tests/mechanics_smoke.gd` verifica as ordens pelo controlador e pelo viewport, efeitos na distância percorrida, preparação e cancelamento de tiros, prioridades e expiração da retaliação, recuo e cura do bot. Também joga partidas completas de ambas as facções usando apenas comandos e habilidades públicos.
 
+`tests/presentation_smoke.gd` verifica a projeção 3D contra `Iso.project()` em quatro tamanhos de janela, seleção dos modelos, sincronização de unidades, entulho, fumaça, pausa, reinício, retorno e alternância para 2D.
+
 `tools/capture_preview.gd` produz imagens do menu e da partida com um renderer real. O modo headless importa e testa o código, mas não valida pixels. O teste visual exige um display X11/Wayland ou equivalente.
 
-A partida 2D usa movimento limitado ao corredor e ataques imediatos. Servidor de partida, persistência, física de projéteis e áudio ainda não foram implementados. A busca de alvos percorre a lista de unidades; uma expansão grande exigirá particionamento espacial e medição de desempenho.
+A simulação usa movimento limitado ao corredor e dano sem projéteis físicos, incluindo a preparação dos disparos defensivos. Servidor de partida, persistência e áudio ainda não foram implementados. A busca de alvos percorre a lista de unidades; uma expansão grande exigirá particionamento espacial e medição de desempenho.
 
 ## Apresentação 3D
 
 O ambiente 3D tem colisões de terreno, casas e barricadas, com uma faixa de navegação livre dos bloqueios. `character_visual_3d.gd` controla a aparência e as articulações dos modelos, reutilizando materiais entre instâncias. `unit_preview_3d.gd` conduz a patrulha visual dos minions. Esses componentes de demonstração não aplicam dano nem executam outra simulação de combate.
 
-`barricade_3d.gd` instancia uma malha compartilhada de concreto com perfil inclinado, criada por `FieldGeometry3D`. As defesas do jogo 2D usam `UnitActor.Role.BARRICADE`, mantendo o identificador 2 e os atributos da defesa anterior. Os controles e a organização das cenas estão documentados em [ENVIRONMENT_3D.md](ENVIRONMENT_3D.md).
+`barricade_3d.gd` instancia uma malha compartilhada de concreto com perfil inclinado, criada por `FieldGeometry3D`. As defesas simuladas usam `UnitActor.Role.BARRICADE`, mantendo o identificador 2. Os controles e a organização das cenas estão documentados em [ENVIRONMENT_3D.md](ENVIRONMENT_3D.md).

@@ -4,6 +4,7 @@ extends Node
 enum State { MENU, PLAYING, FINISHED }
 
 const EffectsScript = preload("res://scripts/world/combat_effects.gd")
+const MatchView3D = preload("res://scripts/match/match_view_3d.gd")
 
 @onready var world: Node2D = $World
 @onready var actor_root: Node2D = $World/Actors
@@ -27,12 +28,18 @@ var winner := -1
 var notice := ""
 var notice_timer := 0.0
 var aim_position := Vector2.ZERO
+var presentation: Control
 
 func _ready() -> void:
 	effects.set_script(EffectsScript)
 	effects.arena = self
 	get_viewport().size_changed.connect(resize_world)
 	resize_world()
+	presentation = MatchView3D.new()
+	presentation.name = "MatchView3D"
+	add_child(presentation)
+	move_child(presentation, 0)
+	presentation.bind_match(self)
 	hud.bind_match(self)
 	start_match(0)
 	state = State.MENU
@@ -41,9 +48,13 @@ func _ready() -> void:
 func resize_world() -> void:
 	var size := get_viewport().get_visible_rect().size
 	world.position = Vector2(size.x * 0.5, size.y * 0.5 + 30)
-	world.scale = Vector2.ONE * minf((size.x - 60) / 1900, (size.y - 190) / 1050)
+	world.scale = Vector2.ONE * maxf(0.05, minf((size.x - 80) / 2150, (size.y - 100) / 1000))
+	if is_instance_valid(presentation):
+		presentation.fit_camera()
 
 func start_match(team: int) -> void:
+	if is_instance_valid(presentation):
+		presentation.reset_units()
 	for unit in units:
 		unit.free()
 	units.clear()
@@ -70,6 +81,8 @@ func start_match(team: int) -> void:
 		spawn_hero(side)
 	hud.hide_overlay()
 	announce("Acompanhe suas tropas. Destrua as barricadas e depois a central rival.")
+	if is_instance_valid(presentation):
+		presentation.sync_units()
 
 func spawn_unit(team: int, role: UnitActor.Role, point: Vector2, controlled: bool = false) -> UnitActor:
 	var unit := UnitActor.new()
@@ -333,6 +346,9 @@ func handle_keyboard_movement(delta: float) -> void:
 			Iso.unproject(screen_direction).normalized() * player.speed * maxf(delta, 0.04))
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F2:
+		presentation.set_enabled(not presentation.enabled)
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ESCAPE:
 		if state == State.PLAYING:
 			toggle_pause()

@@ -25,6 +25,12 @@ func _draw() -> void:
 		if effect.kind == "shot":
 			draw_line(Iso.project(effect.from) - Vector2(0, 22),
 				Iso.project(effect.to) - Vector2(0, 22), color, 2.5, true)
+			var impact := Iso.project(effect.to) - Vector2(0, 20)
+			draw_circle(impact, 12 * alpha, Color(1.0, 0.65, 0.25, alpha * 0.2))
+			draw_circle(impact, 3 * alpha, Color(1.0, 0.87, 0.6, alpha))
+			for i in 3:
+				var ray := Vector2.from_angle(i * 2.3 + effect.duration) * 10 * (1 - alpha)
+				draw_line(impact + ray * 0.4, impact + ray, Color(1.0, 0.67, 0.27, alpha), 1.5, true)
 		else:
 			ground_ring(effect.point, effect.radius * (1 - alpha * 0.35), color, 2.5)
 

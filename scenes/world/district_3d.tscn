@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/modules/house_block_3d.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/modules/landmark_3d.tscn" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/modules/barricade_3d.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/actors/character_visual_3d.tscn" id="5"]
 [ext_resource type="Script" path="res://scripts/demo/unit_preview_3d.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/world/district_finish_3d.gd" id="7"]
 
 [sub_resource type="BoxMesh" id="UnitBox"]
 size = Vector3(1, 1, 1)
@@ -109,6 +110,7 @@ reflected_light_source = 2
 tonemap_mode = 2
 
 [node name="District3D" type="Node3D" groups=["district_3d"]]
+script = ExtResource("7")
 metadata/unit_scale = "1 unit = 1 meter"
 
 [node name="Terrain" type="Node3D" parent="."]

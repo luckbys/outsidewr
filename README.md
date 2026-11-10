@@ -1,6 +1,6 @@
 # Morro em Disputa
 
-Base jogável de um **MOBA 2D isométrico em Godot 4.6**, ambientado no Morro do Sol, uma favela brasileira fictícia. Dois lados disputam a mesma rota: **Polícia / Equipe Azul** e **Tráfico / Equipe Coral**.
+Base jogável de um **MOBA isométrico com apresentação 3D em Godot 4.6**, ambientado no Morro do Sol, uma favela brasileira fictícia. Dois lados disputam a mesma rota: **Polícia / Equipe Azul** e **Tráfico / Equipe Coral**. A partida usa a mesma simulação do protótipo e permite alternar o visual clássico com **F2**.
 
 ![Partida no Morro do Sol](docs/images/match.png)
 
@@ -18,7 +18,7 @@ Consulte [execução e publicação com Docker](docs/DOCKER.md) para configuraç
 
 Abra [`scenes/demo_3d.tscn`](scenes/demo_3d.tscn) no Godot e pressione **F6** para explorar o Morro do Sol em 3D. Use WASD para mover a câmera, Q/E ou o botão direito para girar, a roda para zoom e Home para restaurar a vista. O mapa editável está em [`scenes/world/district_3d.tscn`](scenes/world/district_3d.tscn).
 
-O **F5** continua abrindo o protótipo 2D. Após atualizar a imagem Docker, a demonstração é servida em **`/3d/`**, enquanto a partida 2D permanece em **`/`**. Veja [estrutura, controles e exportação 3D](docs/ENVIRONMENT_3D.md).
+O **F5** abre a partida com o novo visual 3D; **F2** alterna para a representação 2D sem reiniciar. Após atualizar a imagem Docker, a demonstração é servida em **`/3d/`**, enquanto a partida permanece em **`/`**. Veja [apresentação visual](docs/VISUAL_PRESENTATION.md) e [estrutura e controles da demonstração](docs/ENVIRONMENT_3D.md).
 
 ## Abrir e jogar
 
@@ -49,6 +49,7 @@ godot --path .
 | Clique no minimapa | Ordenar movimento até o ponto da rota |
 | Espaço | Manter posição e atacar ao alcance, sem perseguir |
 | Esc / botão de pausa | Pausar / continuar e consultar controles |
+| F2 | Alternar visual 3D / 2D durante a mesma partida |
 
 Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua central recupera vida. Após uma derrota, o personagem retorna à base em **8 segundos**. A partida termina quando uma central é destruída; a tela final permite escolher uma facção e recomeçar.
 
@@ -63,10 +64,11 @@ Avance com os minions: as defesas priorizam tropas ao escolher um alvo, mas pass
 - Ordens de mover, avançar atacando, perseguir um alvo e manter posição.
 - Ataques automáticos, lentidão, prioridade e retaliação das defesas, recuo do bot, cura, retorno, vitória e reinício.
 - HUD responsiva em português com minimapa clicável, vida das centrais, barricadas restantes, próxima onda, alvo, alerta de vida baixa e recargas numéricas.
+- Partida com modelos 3D sincronizados com o combate, 43 casas, fachadas texturizadas, sombras de fim de tarde, fiação, fundo urbano desfocado, fumaça de dano e ruínas das defesas destruídas.
 
 A [documentação da HUD](docs/HUD.md) explica os indicadores, as ações e os controles da interface 3D.
 
-Esta versão é **local e para um jogador**, com arte geométrica provisória. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final. As barricadas e os personagens usam visuais mais detalhados, com equipamentos e vestimentas distintos por facção.
+Esta versão é **local e para um jogador**, com arte procedural estilizada. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final. A apresentação usa geometria e materiais 3D; movimento e alcance continuam no plano lógico da simulação existente.
 
 ## Organização
 
@@ -96,7 +98,7 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **133 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D, 23 da HUD e 39 das mecânicas. Inclui partidas completas com as duas facções, avanço com ataque, lentidão, mira e retaliação das defesas, recuo do bot, pausa, colisões 3D, navegação e layout da interface em três tamanhos de janela.
+Esse comando importa o projeto e executa **151 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D, 23 da HUD, 39 das mecânicas e 18 da apresentação. Inclui partidas completas com as duas facções, habilidades, defesas, recuo do bot, pausa, navegação e alinhamento da câmera 3D com os comandos em quatro tamanhos de janela.
 
 Para executar separadamente:
 
@@ -106,6 +108,7 @@ bash tools/godot.sh --headless --script tests/input_smoke.gd
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 bash tools/godot.sh --headless --script tests/hud_smoke.gd
 bash tools/godot.sh --headless --script tests/mechanics_smoke.gd
+bash tools/godot.sh --headless --script tests/presentation_smoke.gd
 ```
 
 O teste de partida completa acelera o tempo e dirige um herói que avança e usa Q; ele verifica se esse comportamento consegue vencer em até 20 minutos simulados. Não substitui playtesting de equilíbrio ou teste de multiplayer.

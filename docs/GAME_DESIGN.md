@@ -4,7 +4,7 @@
 
 Um MOBA isométrico em uma favela brasileira fictícia, com leitura clara do combate, partidas centradas em objetivos e identidade visual brasileira. O nome e o cenário são provisórios. A primeira entrega é uma fatia jogável local para testar a rota antes de ampliar o escopo.
 
-O Morro do Sol combina tijolo aparente, reboco colorido, lajes, caixas-d'água azuis, fiação, varais, becos e uma quadra. O jogo 2D usa arte vetorial gerada pelo código, com personagens de proporções humanas, roupas, equipamentos e caminhada. A demonstração 3D usa modelos articulados e barricadas de concreto, pneus e sacos de areia. A direção visual permanece estilizada.
+O Morro do Sol combina tijolo aparente, reboco colorido, lajes, caixas-d'água azuis, fiação, becos e uma quadra. A partida usa uma apresentação 3D com modelos articulados, fachadas texturizadas, sombras de fim de tarde e paisagem urbana desfocada. F2 permite usar o desenho vetorial original. A direção visual permanece estilizada; ambas as representações usam a mesma simulação de combate.
 
 ## Equipes
 

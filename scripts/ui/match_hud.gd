@@ -32,9 +32,12 @@ var hero_hit: Control
 var objective_hit: Control
 var target_hit: Control
 var hints_hit: Control
+var laying_out := false
 
 func bind_match(match_node: Node) -> void:
 	arena = match_node
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	get_viewport().size_changed.connect(layout_controls)
 	header_hit = hit_zone()
 	hero_hit = hit_zone()
 	objective_hit = hit_zone()
@@ -89,16 +92,16 @@ func create_overlay() -> void:
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(shade)
 	modal = Panel.new()
-	modal.add_theme_stylebox_override("panel", HudTheme.panel(Color("ede6d5"), Color("bbb69f"), 12, 2))
+	modal.add_theme_stylebox_override("panel", HudTheme.panel(Color(0.04, 0.085, 0.09, 0.97), Color("8f947f"), 5, 1))
 	overlay.add_child(modal)
 	heading = Label.new()
 	heading.add_theme_font_size_override("font_size", 52)
-	heading.add_theme_color_override("font_color", Color("112c30"))
+	heading.add_theme_color_override("font_color", CREAM)
 	heading.position = Vector2(36, 65)
 	modal.add_child(heading)
 	description = Label.new()
 	description.add_theme_font_size_override("font_size", 19)
-	description.add_theme_color_override("font_color", Color("45605a"))
+	description.add_theme_color_override("font_color", MUTED)
 	description.position = Vector2(38, 230)
 	description.size = Vector2(565, 90)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -107,7 +110,7 @@ func create_overlay() -> void:
 	kicker.text = "MORRO DO SOL   /   MOBA ISOMÉTRICO"
 	kicker.position = Vector2(38, 31)
 	kicker.add_theme_font_size_override("font_size", 13)
-	kicker.add_theme_color_override("font_color", Color("627668"))
+	kicker.add_theme_color_override("font_color", GOLD)
 	modal.add_child(kicker)
 	blue_button = make_button("POLÍCIA\nEquipe Azul", Color("3a7183"), CREAM)
 	coral_button = make_button("TRÁFICO\nEquipe Coral", Color("ae5a45"), CREAM)
@@ -128,7 +131,7 @@ func create_overlay() -> void:
 	footer.text = "PARTIDA LOCAL CONTRA BOT   /   UNIVERSO FICTÍCIO"
 	footer.position = Vector2(38, 503)
 	footer.add_theme_font_size_override("font_size", 12)
-	footer.add_theme_color_override("font_color", Color("627668"))
+	footer.add_theme_color_override("font_color", MUTED)
 	modal.add_child(footer)
 
 func place(control: Control, rect: Rect2) -> void:
@@ -136,26 +139,33 @@ func place(control: Control, rect: Rect2) -> void:
 	control.size = rect.size
 
 func layout_controls() -> void:
-	if modal == null:
+	if laying_out or modal == null:
 		return
+	var viewport_size := get_viewport_rect().size
+	if viewport_size.x < 360 or viewport_size.y < 320:
+		return
+	laying_out = true
+	var factor_ui := clampf(viewport_size.x / 1440.0, 0.75, 1.0) if viewport_size.x >= 1000 else 1.0
+	scale = Vector2.ONE * factor_ui
+	size = viewport_size / factor_ui
 	var w := size.x
 	var h := size.y
-	var margin := 20.0 if w >= 760 else 12.0
-	header_rect = Rect2(margin, 16, w - margin * 2, 76)
+	var margin := 10.0 if w >= 760 else 12.0
+	header_rect = Rect2(margin, 2, w - margin * 2, 58 if w >= 760 else 70)
 	place(header_hit, header_rect)
-	place(pause_button, Rect2(w - margin - 52, 33, 38, 38))
+	place(pause_button, Rect2(w - margin - 36, 16, 28, 28))
 	if w >= 760:
-		var hero_width := 278.0 if w >= 1180 else 236.0
-		var map_width := 222.0 if w >= 1180 else 176.0
-		hero_rect = Rect2(margin, h - margin - 108, hero_width, 108)
-		var available := w - margin * 2 - hero_width - map_width - 32
-		var skill_width := minf(420, available)
-		skills_rect = Rect2(hero_rect.end.x + 16, h - margin - 108, skill_width, 108)
-		place(minimap, Rect2(w - margin - map_width, h - margin - 174, map_width, 174))
-		objective_rect = Rect2(margin, 106, 302, 92)
-		target_rect = Rect2(skills_rect.position.x, skills_rect.position.y - 78, skill_width, 66)
-		var extra := minimap.position.x - skills_rect.end.x - 28
-		hints_rect = Rect2(skills_rect.end.x + 14, h - margin - 108, maxf(0, extra), 108)
+		var hero_width := 224.0 if w >= 1180 else 200.0
+		var map_width := 176.0 if w >= 1180 else 154.0
+		hero_rect = Rect2(margin, h - margin - 86, hero_width, 86)
+		var available := w - margin * 2 - hero_width - map_width - 24
+		var skill_width := minf(336 if w >= 1180 else 282, available)
+		skills_rect = Rect2(hero_rect.end.x + 8, h - margin - 86, skill_width, 86)
+		place(minimap, Rect2(w - margin - map_width, h - margin - 134, map_width, 134))
+		objective_rect = Rect2(margin, 74, clampf(w * 0.18, 204, 260), 76)
+		target_rect = Rect2(skills_rect.position.x, skills_rect.position.y - 58, skill_width, 48)
+		var extra := minimap.position.x - skills_rect.end.x - 16
+		hints_rect = Rect2(skills_rect.end.x + 8, h - margin - 86, maxf(0, extra), 86)
 	else:
 		hero_rect = Rect2(margin, h - margin - 92, w - margin * 2, 92)
 		skills_rect = Rect2(margin, hero_rect.position.y - 90, hero_rect.size.x, 78)
@@ -180,6 +190,7 @@ func layout_controls() -> void:
 	modal.position = (size - modal.size * factor) * 0.5
 	minimap.update_geometry()
 	queue_redraw()
+	laying_out = false
 
 func show_menu() -> void:
 	overlay_kind = "menu"
@@ -197,7 +208,7 @@ func show_pause() -> void:
 	overlay_kind = "pause"
 	overlay.show()
 	heading.text = "PARTIDA\nEM PAUSA."
-	description.text = "Clique: mover / atacar. Shift + clique: avançar atacando.\nWASD: mover. Q: impacto e lentidão. E: avanço. B: recuar.\nEspaço: manter posição. Esc: continuar."
+	description.text = "Clique: mover / atacar. Shift + clique: avançar atacando.\nWASD: mover. Q: impacto e lentidão. E: avanço. B: recuar.\nEspaço: manter posição. F2: alternar visual. Esc: continuar."
 	blue_button.hide()
 	coral_button.hide()
 	secondary_button.text = "CONTINUAR   /   ESC"
@@ -223,7 +234,7 @@ func _process(_delta: float) -> void:
 	var color: Color = MatchRules.FACTIONS[arena.player_team].color
 	pulse_button.update_state(arena.pulse_timer, active, color)
 	dash_button.update_state(arena.dash_timer, active, color)
-	retreat_button.update_state(0, active, color)
+	retreat_button.update_state(0, active, GOLD)
 	minimap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if active else Control.CURSOR_ARROW
 	minimap.queue_redraw()
 	queue_redraw()
@@ -236,7 +247,7 @@ func defense_count(team: int) -> int:
 	return count
 
 func _draw() -> void:
-	if arena == null or not is_instance_valid(arena.player):
+	if arena == null or not is_instance_valid(arena.player) or size.x < 360 or size.y < 320:
 		return
 	draw_header()
 	draw_objectives()
@@ -245,15 +256,15 @@ func _draw() -> void:
 		draw_target()
 	if hints_rect.size.x >= 155:
 		box(hints_rect)
-		text_at(hints_rect.position + Vector2(14, 26), "CONTROLE DA ROTA", 11, GOLD)
-		text_at(hints_rect.position + Vector2(14, 50), "Clique / WASD: mover", 12, CREAM)
-		text_at(hints_rect.position + Vector2(14, 71), "Shift + clique: atacar", 12, MUTED)
-		text_at(hints_rect.position + Vector2(14, 92), "Espaço: parar / Esc: pausa", 11, MUTED)
+		text_at(hints_rect.position + Vector2(12, 19), "CONTROLE DA ROTA", 10, GOLD)
+		text_at(hints_rect.position + Vector2(12, 37), "Clique / WASD: mover", 11, CREAM)
+		text_at(hints_rect.position + Vector2(12, 55), "Shift + clique: atacar", 11, MUTED)
+		text_at(hints_rect.position + Vector2(12, 73), "Espaço: parar / F2: visual %s" % ("2D" if arena.presentation.enabled else "3D"), 10, MUTED)
 	if not arena.player.alive and arena.state == arena.State.PLAYING:
-		var rect := Rect2(size.x * 0.5 - 180, size.y * 0.5 - 36, 360, 72)
+		var rect := Rect2(size.x * 0.5 - 170, size.y * 0.5 - 31, 340, 62)
 		box(rect, HudTheme.SURFACE, GOLD)
-		text_at(rect.position + Vector2(18, 29), "RETORNANDO À CENTRAL", 16, CREAM)
-		text_at(rect.position + Vector2(18, 54), "%d s para voltar à partida" % ceili(arena.respawn_timers[arena.player_team]), 15, GOLD)
+		text_at(rect.position + Vector2(14, 25), "RETORNANDO À CENTRAL", 15, CREAM)
+		text_at(rect.position + Vector2(14, 47), "%d s para voltar à partida" % ceili(arena.respawn_timers[arena.player_team]), 13, GOLD)
 	elif arena.notice_timer > 0 and not overlay.visible:
 		var width := minf(size.x - 40, 760)
 		var y := maxf(230, target_rect.position.y - 42) if size.y >= 650 else 208.0
@@ -263,42 +274,44 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, width - 24, 12, CREAM)
 
 func draw_header() -> void:
-	box(header_rect)
+	box(header_rect, Color(0.09, 0.14, 0.15, 0.76))
 	if size.x >= 600:
-		text_at(header_rect.position + Vector2(16, 45), "M /", 24, GOLD)
+		text_at(header_rect.position + Vector2(13, 36), "M /", 20, GOLD)
 	if size.x >= 1180:
-		text_at(header_rect.position + Vector2(78, 32), "MORRO EM DISPUTA", 16, CREAM)
-		text_at(header_rect.position + Vector2(78, 53), "MORRO DO SOL", 10, MUTED)
+		text_at(header_rect.position + Vector2(62, 24), "MORRO EM DISPUTA", 14, CREAM)
+		text_at(header_rect.position + Vector2(62, 40), "MORRO DO SOL", 9, MUTED)
 	var center := size.x * 0.5 if size.x >= 600 else (size.x - 64) * 0.5
-	text_at(Vector2(center - 28, 49), clock_text(arena.elapsed), 23, CREAM)
-	text_at(Vector2(center - 29, 70), "ONDA %02d" % arena.wave_number, 10, GOLD)
+	var clock_outline := PackedVector2Array([Vector2(center - 41, 2), Vector2(center + 41, 2), Vector2(center + 41, 53), Vector2(center + 30, 62), Vector2(center - 30, 62), Vector2(center - 41, 53)])
+	draw_colored_polygon(clock_outline, Color("102326"))
+	text_at(Vector2(center - 28, 30), clock_text(arena.elapsed), 22, CREAM)
+	text_at(Vector2(center - 25, 48), "ONDA %02d" % arena.wave_number, 9, GOLD)
 	var team_width := minf(220, (size.x - (260 if size.x >= 600 else 120)) / 3)
-	var spacing := 70.0 if size.x >= 600 else 50.0
+	var spacing := 57.0 if size.x >= 600 else 50.0
 	for team in 2:
 		var x := center - spacing - team_width if team == 0 else center + spacing
 		var color := MatchRules.FACTIONS[team].color
+		var points := PackedVector2Array([Vector2(x - 28 if team == 0 else x - 7, 2), Vector2(x + team_width + 7 if team == 0 else x + team_width + 28, 2), Vector2(x + team_width + 7, 56), Vector2(x - 7, 56)])
+		draw_colored_polygon(points, Color(color.darkened(0.62), 0.5))
+		draw_polyline(PackedVector2Array([points[0], points[3], points[2], points[1]]), Color(color, 0.28), 1, true)
 		var ratio: float = arena.core_health(team)
 		var caption: String = MatchRules.FACTIONS[team].title if team_width >= 145 else ("AZUL" if team == 0 else "CORAL")
-		text_at(Vector2(x, 39), caption, 12, color)
-		draw_string(ThemeDB.fallback_font, Vector2(x, 39), "%d%%" % roundi(ratio * 100), HORIZONTAL_ALIGNMENT_RIGHT, team_width, 12, CREAM)
-		bar(Rect2(x, 48, team_width, 6), ratio, color)
-		text_at(Vector2(x, 72), ("%d/2 BARRICADAS" if team_width >= 170 else "%d/2 BLOQ.") % defense_count(team), 10, MUTED)
+		text_at(Vector2(x, 19), caption, 10, color)
+		draw_string(ThemeDB.fallback_font, Vector2(x, 19), "%d%%" % roundi(ratio * 100), HORIZONTAL_ALIGNMENT_RIGHT, team_width, 10, CREAM)
+		bar(Rect2(x, 26, team_width, 4), ratio, color)
+		text_at(Vector2(x, 46), ("%d/2 BARRICADAS" if team_width >= 170 else "%d/2 BLOQ.") % defense_count(team), 9, MUTED)
 		for i in 2:
-			var point := Vector2(x + team_width - 18 + i * 10, 66)
-			draw_rect(Rect2(point, Vector2(6, 6)), color if i < defense_count(team) else HudTheme.BORDER)
+			var point := Vector2(x + team_width - 15 + i * 8, 40)
+			draw_rect(Rect2(point, Vector2(5, 5)), color if i < defense_count(team) else HudTheme.BORDER)
 
 func draw_objectives() -> void:
 	box(objective_rect)
 	var pos := objective_rect.position
 	var enemy: int = 1 - arena.player_team
 	var left := defense_count(enemy)
-	text_at(pos + Vector2(14, 23), "PRÓXIMO OBJETIVO", 10, GOLD)
-	text_at(pos + Vector2(14, 45), "Romper barricadas" if left > 0 else "Conquistar a central", 16, CREAM)
-	text_at(pos + Vector2(14, 66), "%d bloqueios inimigos ativos" % left if left > 0 else "Central rival vulnerável", 11, MUTED)
-	if objective_rect.size.x >= 260:
-		text_at(pos + Vector2(14, 83), "PRÓXIMA TROPA  %02d s" % maxi(0, ceili(arena.wave_timer)), 10, MUTED)
-	else:
-		text_at(pos + Vector2(14, 89), "Tropas em %d s" % maxi(0, ceili(arena.wave_timer)), 11, MUTED)
+	text_at(pos + Vector2(11, 15), "PRÓXIMO OBJETIVO", 9, GOLD)
+	text_at(pos + Vector2(11, 33), "Romper barricadas" if left > 0 else "Conquistar a central", 14, CREAM)
+	text_at(pos + Vector2(11, 49), "%d bloqueios inimigos ativos" % left if left > 0 else "Central rival vulnerável", 10, MUTED)
+	text_at(pos + Vector2(11, 65), "PRÓXIMA TROPA  %02d s" % maxi(0, ceili(arena.wave_timer)), 9, MUTED)
 
 func draw_hero() -> void:
 	var ratio: float = arena.player.hp / arena.player.max_hp
@@ -307,25 +320,29 @@ func draw_hero() -> void:
 	var danger: bool = low or arena.player_under_defense_threat()
 	box(hero_rect, HudTheme.SURFACE, HudTheme.DANGER if danger else HudTheme.BORDER)
 	var p := hero_rect.position
-	var center := p + Vector2(37, 42)
-	draw_circle(center, 23, HudTheme.RAISED)
-	draw_arc(center, 24, -PI / 2, PI * 1.5, 32, color, 2, true)
+	var center := p + Vector2(28, 33)
+	draw_circle(center, 19, HudTheme.RAISED)
+	draw_arc(center, 20, -PI / 2, PI * 1.5, 32, color, 1.5, true)
 	# Portrait follows the faction's actual cap/helmet and uniform silhouette.
 	draw_colored_polygon(PackedVector2Array([center + Vector2(-15, 18), center + Vector2(-10, 3),
 		center + Vector2(10, 3), center + Vector2(15, 18)]), Color("304757") if arena.player_team == 0 else Color("53584b"))
 	draw_circle(center + Vector2(0, -5), 9, Color("b58161"))
+	draw_colored_polygon(PackedVector2Array([center + Vector2(1, -12), center + Vector2(7, -9), center + Vector2(8, -2), center + Vector2(3, 4), center + Vector2(0, 2)]), Color("8d614d"))
+	draw_line(center + Vector2(-4, -6), center + Vector2(-1, -6), Color("28332e"), 1.2, true)
+	draw_line(center + Vector2(3, -6), center + Vector2(6, -6), Color("28332e"), 1.2, true)
+	draw_line(center + Vector2(1, -4), center + Vector2(0, -1), Color("deb08a"), 1, true)
+	draw_line(center + Vector2(-1, 1), center + Vector2(4, 1), Color("4f4339"), 1.2, true)
 	draw_arc(center + Vector2(0, -8), 10, PI, TAU, 20, Color("24383e"), 7, true)
 	if arena.player_team == 1:
 		draw_line(center + Vector2(-1, -16), center + Vector2(13, -13), Color("3d494a"), 4, true)
 	draw_rect(Rect2(center + Vector2(-6, 6), Vector2(12, 13)), Color("1d2e32"))
-	var x := p.x + 75
-	text_at(Vector2(x, p.y + 25), MatchRules.FACTIONS[arena.player_team].hero_name.to_upper(), 15, CREAM)
-	text_at(Vector2(x, p.y + 43), player_state(), 10, HudTheme.DANGER if danger else color)
-	var width := hero_rect.size.x - 91
-	bar(Rect2(x, p.y + 54, width, 9), ratio, HudTheme.DANGER if low else color)
-	text_at(Vector2(x, p.y + 82), "%d / %d PV" % [int(arena.player.hp), int(arena.player.max_hp)], 11, CREAM)
-	if hero_rect.size.y >= 100:
-		text_at(Vector2(p.x + 15, p.y + 99), "%d ALVOS    /    %d QUEDAS" % [arena.takedowns, arena.deaths], 10, MUTED)
+	var x := p.x + 60
+	text_at(Vector2(x, p.y + 19), MatchRules.FACTIONS[arena.player_team].hero_name.to_upper(), 13, CREAM)
+	text_at(Vector2(x, p.y + 35), player_state(), 9, HudTheme.DANGER if danger else color)
+	var width := hero_rect.size.x - 74
+	bar(Rect2(x, p.y + 44, width, 6), ratio, HudTheme.DANGER if low else color)
+	text_at(Vector2(x, p.y + 65), "%d / %d PV" % [int(arena.player.hp), int(arena.player.max_hp)], 10, CREAM)
+	text_at(Vector2(p.x + 12, p.y + 79), "%d ALVOS    /    %d QUEDAS" % [arena.takedowns, arena.deaths], 9, MUTED)
 
 func player_state() -> String:
 	if not arena.player.alive:
@@ -354,12 +371,12 @@ func draw_target() -> void:
 	if is_instance_valid(target) and target.alive:
 		var role_name: String = {UnitActor.Role.HERO: "HERÓI", UnitActor.Role.TROOP: "MINION",
 			UnitActor.Role.BARRICADE: "BARRICADA", UnitActor.Role.CORE: "CENTRAL"}[target.role]
-		text_at(p + Vector2(13, 22), "ALVO / " + role_name, 11, MatchRules.FACTIONS[target.team].color)
-		bar(Rect2(p + Vector2(13, 33), Vector2(target_rect.size.x - 26, 5)), target.hp / target.max_hp, MatchRules.FACTIONS[target.team].color)
-		text_at(p + Vector2(13, 55), "%d / %d PV" % [int(target.hp), int(target.max_hp)], 11, CREAM)
+		text_at(p + Vector2(11, 15), "ALVO / " + role_name, 10, MatchRules.FACTIONS[target.team].color)
+		bar(Rect2(p + Vector2(11, 23), Vector2(target_rect.size.x - 22, 4)), target.hp / target.max_hp, MatchRules.FACTIONS[target.team].color)
+		text_at(p + Vector2(11, 41), "%d / %d PV" % [int(target.hp), int(target.max_hp)], 10, CREAM)
 	else:
-		text_at(p + Vector2(13, 24), "AVANCE COM SUAS TROPAS", 11, GOLD)
-		text_at(p + Vector2(13, 46), "Clique em um rival para selecionar o alvo.", 11, MUTED)
+		text_at(p + Vector2(11, 17), "AVANCE COM SUAS TROPAS", 10, GOLD)
+		text_at(p + Vector2(11, 37), "Selecione um rival para atacar.", 10, MUTED)
 
 func text_at(point: Vector2, value: String, font_size: int, color: Color) -> void:
 	draw_string(ThemeDB.fallback_font, point, value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)

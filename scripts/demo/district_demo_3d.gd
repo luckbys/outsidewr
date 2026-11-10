@@ -86,7 +86,7 @@ func create_interface() -> void:
 	navigation_button = button(action_flow, "Navegação [N]", toggle_navigation)
 	navigation_button.toggle_mode = true
 	navigation_button.tooltip_text = "Mostrar ou ocultar a faixa navegável"
-	var game_button := button(action_flow, "Jogar 2D", func() -> void:
+	var game_button := button(action_flow, "Jogar", func() -> void:
 		get_tree().change_scene_to_file("res://scenes/main.tscn"))
 	game_button.tooltip_text = "Abrir a partida contra bot"
 	label(content, "1-5: vistas  |  N: navegação  |  H: controles", 11, MUTED)

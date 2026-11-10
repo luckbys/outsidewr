@@ -18,11 +18,19 @@ func _draw() -> void:
 		return
 	update_geometry()
 	draw_style_box(HudTheme.panel(), Rect2(Vector2.ZERO, size))
-	draw_string(ThemeDB.fallback_font, Vector2(13, 22), "MAPA TÁTICO", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HudTheme.GOLD)
+	draw_string(ThemeDB.fallback_font, Vector2(10, 17), "MAPA TÁTICO", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, HudTheme.GOLD)
+	draw_set_transform(map_center, 0, Vector2(1, 0.48))
+	var radius := (size.x - 24) * 0.5
+	draw_circle(Vector2.ZERO, radius, Color(0.12, 0.28, 0.29, 0.35))
+	for scale_factor in [0.64, 0.82, 1.0]:
+		draw_arc(Vector2.ZERO, radius * scale_factor, 0, TAU, 64, Color(0.44, 0.74, 0.74, 0.35), 1, true)
+	draw_line(Vector2(-radius, 0), Vector2(radius, 0), Color(0.44, 0.74, 0.74, 0.18), 1, true)
+	draw_line(Vector2(0, -radius), Vector2(0, radius), Color(0.44, 0.74, 0.74, 0.18), 1, true)
+	draw_set_transform(Vector2.ZERO)
 	var outline := Iso.diamond(Iso.MAP_RECT)
 	for i in outline.size():
 		outline[i] = map_center + outline[i] * map_scale
-	draw_colored_polygon(outline, Color("344b43"))
+	draw_colored_polygon(outline, Color(0.19, 0.35, 0.33, 0.5))
 	draw_line(project(Vector2(-600, 0)), project(Vector2(600, 0)), Color("9e987a"), 5, true)
 	if is_instance_valid(arena.player) and arena.player.alive:
 		var goal: Vector2 = arena.player.destination

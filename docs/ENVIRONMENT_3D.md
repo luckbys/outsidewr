@@ -1,6 +1,6 @@
 # Ambiente 3D — Morro do Sol
 
-Esta etapa adiciona uma base 3D independente em **Godot 4.6.3**, usando o renderer **Compatibility**. O protótipo 2D e seus comandos continuam como entrada padrão do projeto.
+O distrito usa **Godot 4.6.3** e o renderer **Compatibility**. Ele é compartilhado pela demonstração de exploração e pela [apresentação 3D da partida](VISUAL_PRESENTATION.md). O desenho 2D original continua acessível com F2 na partida.
 
 ![Vista geral do ambiente 3D](images/environment-3d.png)
 
@@ -14,7 +14,7 @@ No terminal:
 bash tools/godot.sh res://scenes/demo_3d.tscn
 ```
 
-O **F5** continua iniciando o jogo 2D. O botão **Jogar 2D** da demonstração também leva à cena original.
+O **F5** inicia a partida com a apresentação 3D. O botão **Jogar** da demonstração também leva à cena principal.
 
 ## Exploração
 
@@ -40,7 +40,7 @@ A barra inferior reorganiza os botões em linhas conforme a largura da janela. O
 ```text
 District3D
 ├── Terrain               terreno, colisão, rua e calçadas
-├── Buildings             22 instâncias editáveis de casas
+├── Buildings             22 casas editáveis + 21 módulos adicionais determinísticos
 ├── Decoration            quadra, postes e bancos
 ├── Lighting              DirectionalLight3D e WorldEnvironment
 ├── Navigation
@@ -52,7 +52,7 @@ District3D
 
 `1 unidade Godot = 1 metro`. O terreno mede **70 × 50 m**. A rua tem **8 m** de largura e uma faixa navegável de **60 × 4 m**, deslocada para `Z = -1,7 m` para manter distância das barricadas. O chão transitável está perto de `Y = 0`; pequenas espessuras dos pisos e a malha de navegação usam deslocamentos de centímetros para evitar sobreposição visual.
 
-O oeste é identificado por azul e o leste por coral. As posições são `Marker3D` com nomes explícitos; essa etapa não conecta esses marcadores à simulação de combate 2D.
+O oeste é identificado por azul e o leste por coral. As posições são `Marker3D` com nomes explícitos. Na partida, esses marcadores visuais são ocultados e substituídos pelos modelos das unidades reais da simulação.
 
 ## Módulos editáveis
 
@@ -64,7 +64,7 @@ O oeste é identificado por azul e o leste por coral. As posições são `Marker
 
 A Polícia usa uniforme azul escuro, colete e capacete ou boné. O Tráfico usa roupas em tons urbanos, boné e acessórios de identificação coral. Os heróis têm equipamentos adicionais. Os minions mantêm proporções adultas, com equipamentos mais simples. Os modelos reutilizam materiais e malhas e possuem movimentos de respiração, quadril, braços, joelhos e caminhada.
 
-As seis tropas da demonstração percorrem trechos próprios dentro da faixa livre da rota. A patrulha demonstra o modelo e sua animação; as decisões de combate e o dano continuam pertencendo ao jogo 2D.
+As seis tropas da demonstração percorrem trechos próprios dentro da faixa livre da rota. A patrulha demonstra o modelo e sua animação; as decisões de combate e o dano pertencem à partida principal.
 
 ![Heróis e minions com equipamentos e roupas por facção](images/characters-3d.png)
 
@@ -80,9 +80,9 @@ Para gerar a demonstração web separadamente:
 bash tools/export_web.sh Web3D
 ```
 
-Saídas: `builds/web-3d/` e `builds/morro-em-disputa-3d-web.zip`. O preset `Web3D` ativa a feature `demo_3d`, cuja sobrescrita de `run/main_scene` inicia a demonstração. O preset `Web` continua iniciando a partida 2D.
+Saídas: `builds/web-3d/` e `builds/morro-em-disputa-3d-web.zip`. O preset `Web3D` ativa a feature `demo_3d`, cuja sobrescrita de `run/main_scene` inicia a demonstração. O preset `Web` inicia a partida com apresentação 3D e alternância para o desenho 2D.
 
-O Dockerfile exporta as duas versões. Após compilar e fazer deploy da imagem atualizada, o caminho **`/`** abre o jogo 2D e **`/3d/`** abre a demonstração. Ambos usam a porta interna **8080** e os mesmos requisitos de HTTPS e WebGL 2. A imagem mantém dois pacotes web independentes, incluindo seus runtimes, para permitir abrir cada versão diretamente.
+O Dockerfile exporta as duas versões. Após compilar e fazer deploy da imagem atualizada, o caminho **`/`** abre a partida e **`/3d/`** abre a demonstração. Ambos usam a porta interna **8080** e os mesmos requisitos de HTTPS e WebGL 2. A imagem mantém dois pacotes web independentes, incluindo seus runtimes, para permitir abrir cada versão diretamente.
 
 ## Validação e limites
 
@@ -92,8 +92,8 @@ bash tools/setup.sh
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 ```
 
-O setup executa **37 verificações de simulação e entrada**, **39 de mecânicas do jogo 2D**, **34 do ambiente 3D** e **23 da HUD**, totalizando **133**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`. A suíte da HUD também verifica os botões, atalhos e o layout responsivo da demonstração.
+O setup executa **37 verificações de simulação e entrada**, **39 de mecânicas**, **34 do ambiente 3D**, **23 da HUD** e **18 da apresentação**, totalizando **151**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`. A suíte da HUD também verifica os botões, atalhos e o layout responsivo da demonstração.
 
 A demonstração também foi exportada e executada no Chromium com WebGL 2, com inspeção visual e comandos de câmera. Os testes headless verificam estrutura e comportamento; a validação no navegador verifica a renderização.
 
-Esta entrega é um ambiente de exploração com arte estilizada. Os personagens e minions 3D são modelos de demonstração, com roupas, equipamentos, poses e animação de caminhada. O combate continua no jogo 2D; a patrulha da demo não executa uma segunda simulação de partida. Combate 3D, navegação autônoma de tropas e integração dos objetivos com a partida ficam para as próximas etapas.
+Esta demonstração é um ambiente de exploração com arte estilizada; sua patrulha não executa uma segunda simulação de partida. Os mesmos modelos são usados pelas unidades reais na cena principal. A apresentação da partida conserva o movimento e os alcances do plano lógico; combate baseado em colisões físicas 3D e navegação autônoma entre casas ficam para etapas futuras.

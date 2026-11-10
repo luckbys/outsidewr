@@ -2,16 +2,16 @@ class_name HudTheme
 extends RefCounted
 ## Shared palette and cached panel styles for the match and 3D inspection HUDs.
 
-const SURFACE := Color("122429")
-const RAISED := Color("1e363a")
-const BORDER := Color("3b5355")
+const SURFACE := Color(0.035, 0.085, 0.095, 0.88)
+const RAISED := Color(0.08, 0.14, 0.15, 0.92)
+const BORDER := Color("526668")
 const TEXT := Color("eee8d9")
 const MUTED := Color("a3b5b3")
 const GOLD := Color("dfbd7b")
 const DANGER := Color("f19279")
 static var panels: Dictionary = {}
 
-static func panel(fill: Color = SURFACE, stroke: Color = BORDER, radius: int = 7, border_width: int = 1) -> StyleBoxFlat:
+static func panel(fill: Color = SURFACE, stroke: Color = BORDER, radius: int = 3, border_width: int = 1) -> StyleBoxFlat:
 	var key := "%s/%s/%d/%d" % [fill.to_html(), stroke.to_html(), radius, border_width]
 	if not panels.has(key):
 		var style := StyleBoxFlat.new()

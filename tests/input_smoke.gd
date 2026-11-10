@@ -38,6 +38,7 @@ func click(point: Vector2) -> void:
 		root.push_input(event, true)
 
 func run() -> void:
+	root.size = Vector2i(1440, 900)
 	var arena: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(arena)
 	arena.set_process(false)

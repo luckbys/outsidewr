@@ -1,10 +1,10 @@
 # HUD e interface
 
-A interface usa painéis escuros, texto claro, destaques dourados e as cores azul e coral das equipes. O layout foi verificado em **1440×900**, **800×600** e **480×800**. Em janelas estreitas, as habilidades ficam acima do cartão do herói e o minimapa ocupa o canto superior direito. O jogo continua exigindo teclado e mouse.
+A interface usa painéis escuros translúcidos, texto claro, destaques dourados e as cores azul e coral das equipes. O placar tem recortes angulares e o minimapa inclui anéis. Em telas de 1000 a 1440 pixels de largura, a HUD reduz sua escala para manter a composição compacta da referência; abaixo disso, prioriza a leitura e reorganiza os painéis. O jogo continua exigindo teclado e mouse.
 
 ![HUD durante a partida](images/match.png)
 
-## Partida 2D
+## Partida
 
 | Indicador | Origem e comportamento |
 | --- | --- |
@@ -27,15 +27,15 @@ Quando uma defesa mira no jogador, a HUD destaca o cartão em coral e mostra **M
 
 ![HUD em uma janela de 800×600](images/hud-compact.png)
 
-O botão **II** ou **Esc** abre a pausa e os controles. **Continuar / Esc** retoma a mesma partida. Cliques nos painéis e na pausa são consumidos pela interface.
+O botão **II** ou **Esc** abre a pausa e os controles. **Continuar / Esc** retoma a mesma partida. **F2** alterna a representação 3D/2D do cenário. Cliques nos painéis e na pausa são consumidos pela interface.
 
 ## Demonstração 3D
 
 ![Interface de exploração 3D](images/characters-3d.png)
 
-A barra inferior permite alternar entre vista geral, centrais, personagens e barricadas. Os botões se distribuem em linhas conforme a janela; o cabeçalho indica a vista ativa e o zoom atual. Atalhos: **1–5** para enquadramentos, **N** para navegação e **H / ?** para a ajuda da câmera. **Jogar 2D** abre a partida original.
+A barra inferior permite alternar entre vista geral, centrais, personagens e barricadas. Os botões se distribuem em linhas conforme a janela; o cabeçalho indica a vista ativa e o zoom atual. Atalhos: **1–5** para enquadramentos, **N** para navegação e **H / ?** para a ajuda da câmera. **Jogar** abre a partida.
 
-Essa interface acompanha o ambiente de exploração 3D. A vida, as habilidades e os objetivos de combate pertencem à partida 2D.
+Essa interface acompanha o ambiente de exploração. A vida, as habilidades e os objetivos de combate pertencem à partida principal.
 
 ## Validar
 
