@@ -10,3 +10,4 @@ bash "$tools_dir/godot.sh" --headless --editor --import --quit
 bash "$tools_dir/godot.sh" --headless --script tests/match_smoke.gd
 bash "$tools_dir/godot.sh" --headless --script tests/input_smoke.gd
 bash "$tools_dir/godot.sh" --headless --script tests/district_3d_smoke.gd
+bash "$tools_dir/godot.sh" --headless --script tests/hud_smoke.gd

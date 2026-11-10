@@ -43,9 +43,11 @@ godot --path .
 | Clique em um inimigo | Aproximar e atacar automaticamente |
 | WASD | Movimento nas direções da tela |
 | Q / botão Impacto | Dano em área contra personagens e tropas; recarga de 7 s |
-| E / botão Avanço | Avançar na direção do cursor; recarga de 5 s |
+| E / botão Avanço | Avançar na última direção apontada no mapa; recarga de 5 s |
+| B / botão Recuar | Caminhar até sua central para recuperar vida |
+| Clique no minimapa | Ordenar movimento até o ponto da rota |
 | Espaço | Parar o movimento |
-| Esc | Pausar / continuar |
+| Esc / botão de pausa | Pausar / continuar e consultar controles |
 
 Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua central recupera vida. Após uma derrota, o personagem retorna à base em **8 segundos**. A partida termina quando uma central é destruída; a tela final permite escolher uma facção e recomeçar.
 
@@ -56,7 +58,9 @@ Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua
 - Uma rota livre de obstáculos, duas barricadas e uma central por equipe.
 - Herói jogável, herói adversário com IA simples e ondas de três tropas por lado a cada 14 s.
 - Ataques automáticos, habilidades, vida, cura, derrota, retorno, vitória e reinício.
-- HUD em português com minimapa, vida das centrais, cronômetro e recargas.
+- HUD responsiva em português com minimapa clicável, vida das centrais, barricadas restantes, próxima onda, alvo, alerta de vida baixa e recargas numéricas.
+
+A [documentação da HUD](docs/HUD.md) explica os indicadores, as ações e os controles da interface 3D.
 
 Esta versão é **local e para um jogador**, com arte geométrica provisória. As facções compartilham os mesmos atributos e habilidades. Ainda não há multiplayer, loja, itens, progressão de nível, áudio, múltiplas rotas, navegação entre casas ou arte final. As barricadas e os personagens usam visuais mais detalhados, com equipamentos e vestimentas distintos por facção.
 
@@ -88,7 +92,7 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **71 verificações**: 29 de simulação, 8 de interface e 34 do ambiente 3D. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera e uma rota de navegação entre as bases.
+Esse comando importa o projeto e executa **94 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D e 23 da HUD. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera, navegação, minimapa clicável e layout da interface em três tamanhos de janela.
 
 Para executar separadamente:
 
@@ -96,6 +100,7 @@ Para executar separadamente:
 bash tools/godot.sh --headless --script tests/match_smoke.gd
 bash tools/godot.sh --headless --script tests/input_smoke.gd
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
+bash tools/godot.sh --headless --script tests/hud_smoke.gd
 ```
 
 O teste de partida completa acelera o tempo e dirige um herói que avança e usa Q; ele verifica se esse comportamento consegue vencer em até 20 minutos simulados. Não substitui playtesting de equilíbrio ou teste de multiplayer.
