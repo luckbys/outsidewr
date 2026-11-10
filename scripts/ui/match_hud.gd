@@ -38,10 +38,11 @@ func bind_match(match_node: Node) -> void:
 	header_hit = hit_zone()
 	hero_hit = hit_zone()
 	objective_hit = hit_zone()
+	objective_hit.tooltip_text = "Avance com seus minions.\nAtacar um herói sob sua defesa atrai a mira.\nA linha de mira avisa antes do disparo.\nSaia do alcance para escapar."
 	target_hit = hit_zone()
 	hints_hit = hit_zone()
 	pulse_button = skill("Q", "IMPACTO", MatchRules.PULSE_COOLDOWN,
-		"Q / Impacto\n%d de dano em área contra heróis e minions.\nRecarga de %d s." % [MatchRules.PULSE_DAMAGE, MatchRules.PULSE_COOLDOWN])
+		"Q / Impacto\n%d de dano em área contra heróis e minions.\nLentidão de %d%% por %.1f s. Recarga de %d s." % [MatchRules.PULSE_DAMAGE, int(MatchRules.PULSE_SLOW * 100), MatchRules.PULSE_SLOW_DURATION, MatchRules.PULSE_COOLDOWN])
 	dash_button = skill("E", "AVANÇO", MatchRules.DASH_COOLDOWN,
 		"E / Avanço\nAvança na última direção apontada no mapa.\nRecarga de %d s." % MatchRules.DASH_COOLDOWN)
 	retreat_button = skill("B", "RECUAR", 0,
@@ -196,7 +197,7 @@ func show_pause() -> void:
 	overlay_kind = "pause"
 	overlay.show()
 	heading.text = "PARTIDA\nEM PAUSA."
-	description.text = "Clique: mover / atacar. WASD: mover.\nQ: impacto. E: avanço. B: recuar. Espaço: parar. Esc: continuar."
+	description.text = "Clique: mover / atacar. Shift + clique: avançar atacando.\nWASD: mover. Q: impacto e lentidão. E: avanço. B: recuar.\nEspaço: manter posição. Esc: continuar."
 	blue_button.hide()
 	coral_button.hide()
 	secondary_button.text = "CONTINUAR   /   ESC"
@@ -246,8 +247,8 @@ func _draw() -> void:
 		box(hints_rect)
 		text_at(hints_rect.position + Vector2(14, 26), "CONTROLE DA ROTA", 11, GOLD)
 		text_at(hints_rect.position + Vector2(14, 50), "Clique / WASD: mover", 12, CREAM)
-		text_at(hints_rect.position + Vector2(14, 71), "Espaço: parar", 12, MUTED)
-		text_at(hints_rect.position + Vector2(14, 92), "Esc: pausa e controles", 11, MUTED)
+		text_at(hints_rect.position + Vector2(14, 71), "Shift + clique: atacar", 12, MUTED)
+		text_at(hints_rect.position + Vector2(14, 92), "Espaço: parar / Esc: pausa", 11, MUTED)
 	if not arena.player.alive and arena.state == arena.State.PLAYING:
 		var rect := Rect2(size.x * 0.5 - 180, size.y * 0.5 - 36, 360, 72)
 		box(rect, HudTheme.SURFACE, GOLD)
@@ -303,7 +304,8 @@ func draw_hero() -> void:
 	var ratio: float = arena.player.hp / arena.player.max_hp
 	var color: Color = MatchRules.FACTIONS[arena.player_team].color
 	var low: bool = ratio < 0.3 and arena.player.alive
-	box(hero_rect, HudTheme.SURFACE, HudTheme.DANGER if low else HudTheme.BORDER)
+	var danger: bool = low or arena.player_under_defense_threat()
+	box(hero_rect, HudTheme.SURFACE, HudTheme.DANGER if danger else HudTheme.BORDER)
 	var p := hero_rect.position
 	var center := p + Vector2(37, 42)
 	draw_circle(center, 23, HudTheme.RAISED)
@@ -318,7 +320,7 @@ func draw_hero() -> void:
 	draw_rect(Rect2(center + Vector2(-6, 6), Vector2(12, 13)), Color("1d2e32"))
 	var x := p.x + 75
 	text_at(Vector2(x, p.y + 25), MatchRules.FACTIONS[arena.player_team].hero_name.to_upper(), 15, CREAM)
-	text_at(Vector2(x, p.y + 43), player_state(), 10, HudTheme.DANGER if low else color)
+	text_at(Vector2(x, p.y + 43), player_state(), 10, HudTheme.DANGER if danger else color)
 	var width := hero_rect.size.x - 91
 	bar(Rect2(x, p.y + 54, width, 9), ratio, HudTheme.DANGER if low else color)
 	text_at(Vector2(x, p.y + 82), "%d / %d PV" % [int(arena.player.hp), int(arena.player.max_hp)], 11, CREAM)
@@ -328,15 +330,21 @@ func draw_hero() -> void:
 func player_state() -> String:
 	if not arena.player.alive:
 		return "AGUARDANDO RETORNO"
+	if arena.player_under_defense_threat():
+		return "MIRA DA DEFESA / RECUE"
 	var distance: float = arena.player.world_position.distance_to(MatchRules.FACTIONS[arena.player_team].spawn_point)
 	if distance < 95 and arena.player.hp < arena.player.max_hp:
 		return "RECUPERANDO VIDA"
 	if arena.player.hp / arena.player.max_hp < 0.3:
 		return "VIDA BAIXA / RECUE"
+	if arena.player.slow_timer > 0:
+		return "MOVIMENTO REDUZIDO"
 	if distance < 95:
 		return "NA CENTRAL"
 	if is_instance_valid(arena.player.attack_target) and arena.player.attack_target.alive:
 		return "EM COMBATE"
+	if arena.player.order == UnitActor.Order.ATTACK_MOVE:
+		return "AVANÇANDO / ATACAR"
 	return "EM MOVIMENTO" if arena.player.world_position.distance_to(arena.player.destination) > 3 else "POSICIONADO"
 
 func draw_target() -> void:

@@ -41,15 +41,18 @@ godot --path .
 | --- | --- |
 | Clique esquerdo ou direito no chão | Mover pelo corredor jogável |
 | Clique em um inimigo | Aproximar e atacar automaticamente |
+| Shift + clique no chão ou minimapa | Avançar até o ponto, parando para atacar inimigos ao alcance |
 | WASD | Movimento nas direções da tela |
-| Q / botão Impacto | Dano em área contra personagens e tropas; recarga de 7 s |
+| Q / botão Impacto | Dano em área e lentidão de 35% por 1,5 s; recarga de 7 s |
 | E / botão Avanço | Avançar na última direção apontada no mapa; recarga de 5 s |
 | B / botão Recuar | Caminhar até sua central para recuperar vida |
 | Clique no minimapa | Ordenar movimento até o ponto da rota |
-| Espaço | Parar o movimento |
+| Espaço | Manter posição e atacar ao alcance, sem perseguir |
 | Esc / botão de pausa | Pausar / continuar e consultar controles |
 
 Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua central recupera vida. Após uma derrota, o personagem retorna à base em **8 segundos**. A partida termina quando uma central é destruída; a tela final permite escolher uma facção e recomeçar.
+
+Avance com os minions: as defesas priorizam tropas ao escolher um alvo, mas passam a mirar no herói que atacar outro herói sob sua proteção. A linha de mira sinaliza o disparo por **0,45 s**; sair do alcance nesse intervalo cancela o tiro. O bot recua à própria central com pouca vida e volta depois de se recuperar. Veja as [regras de combate](docs/GAME_DESIGN.md).
 
 ## O que já funciona
 
@@ -57,7 +60,8 @@ Um personagem parado ataca automaticamente rivais ao alcance. Ficar perto da sua
 - Mapa isométrico procedural: casas, lajes, caixas-d'água, antenas, varais, postes, fiação e quadra.
 - Uma rota livre de obstáculos, duas barricadas e uma central por equipe.
 - Herói jogável, herói adversário com IA simples e ondas de três tropas por lado a cada 14 s.
-- Ataques automáticos, habilidades, vida, cura, derrota, retorno, vitória e reinício.
+- Ordens de mover, avançar atacando, perseguir um alvo e manter posição.
+- Ataques automáticos, lentidão, prioridade e retaliação das defesas, recuo do bot, cura, retorno, vitória e reinício.
 - HUD responsiva em português com minimapa clicável, vida das centrais, barricadas restantes, próxima onda, alvo, alerta de vida baixa e recargas numéricas.
 
 A [documentação da HUD](docs/HUD.md) explica os indicadores, as ações e os controles da interface 3D.
@@ -92,7 +96,7 @@ Não há pacotes externos nem serviços obrigatórios. Na nuvem, o helper manté
 bash tools/setup.sh
 ```
 
-Esse comando importa o projeto e executa **94 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D e 23 da HUD. Entre elas estão dano, fogo amigo, alcance, recargas, proteção da central, vitória, reinício, pausa, retorno, combate entre tropas, partida completa, seleção de facção, colisões 3D, câmera, navegação, minimapa clicável e layout da interface em três tamanhos de janela.
+Esse comando importa o projeto e executa **133 verificações**: 29 de simulação, 8 de entrada, 34 do ambiente 3D, 23 da HUD e 39 das mecânicas. Inclui partidas completas com as duas facções, avanço com ataque, lentidão, mira e retaliação das defesas, recuo do bot, pausa, colisões 3D, navegação e layout da interface em três tamanhos de janela.
 
 Para executar separadamente:
 
@@ -101,9 +105,12 @@ bash tools/godot.sh --headless --script tests/match_smoke.gd
 bash tools/godot.sh --headless --script tests/input_smoke.gd
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 bash tools/godot.sh --headless --script tests/hud_smoke.gd
+bash tools/godot.sh --headless --script tests/mechanics_smoke.gd
 ```
 
 O teste de partida completa acelera o tempo e dirige um herói que avança e usa Q; ele verifica se esse comportamento consegue vencer em até 20 minutos simulados. Não substitui playtesting de equilíbrio ou teste de multiplayer.
+
+A suíte de mecânicas também joga uma partida com cada facção usando os comandos públicos de avanço com ataque, Impacto e recuo para cura. As duas devem conseguir vencer em até 30 minutos simulados.
 
 Capturas opcionais, em uma máquina com display:
 

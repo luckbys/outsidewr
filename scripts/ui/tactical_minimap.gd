@@ -7,7 +7,7 @@ var map_center := Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	tooltip_text = "Clique na rota para mover.\nCírculo branco: você.\nLosangos: barricadas. Quadrados: centrais."
+	tooltip_text = "Clique na rota para mover.\nShift + clique: avançar e atacar.\nCírculo branco: você.\nLosangos: barricadas. Quadrados: centrais."
 
 func update_geometry() -> void:
 	map_center = Vector2(size.x * 0.5, size.y * 0.5 + 3)
@@ -55,5 +55,5 @@ func _gui_input(event: InputEvent) -> void:
 		if arena.state == arena.State.PLAYING and not arena.paused and arena.player.alive:
 			update_geometry()
 			var point := Iso.unproject((event.position - map_center) / map_scale)
-			arena.command_move(Iso.clamp_to_lane(point))
+			arena.command_move(Iso.clamp_to_lane(point), event.shift_pressed)
 		accept_event()

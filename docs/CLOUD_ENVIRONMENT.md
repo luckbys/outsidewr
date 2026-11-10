@@ -13,7 +13,7 @@ bash tools/setup.sh
 
 O helper `tools/godot.sh` encaminha os arquivos de dados, configuração e cache para `/workspace/.godot-runtime`. Isso evita os diretórios de HOME sem permissão de escrita nesta máquina. Fora de `/workspace`, usa um diretório sob o cache do usuário. `MORRO_RUNTIME_DIR` e `GODOT_BIN` permitem substituições explícitas.
 
-O setup verifica a versão, importa os assets e roda quatro suítes de integração: simulação, entrada, ambiente 3D e HUD. Pode ser repetido sem alterar código, recursos ou regras de balanceamento. `.godot/` é cache local ignorado pelo Git; os arquivos `.uid` dos scripts devem acompanhar o projeto.
+O setup verifica a versão, importa os assets e roda cinco suítes de integração: simulação, entrada, ambiente 3D, HUD e mecânicas. Pode ser repetido sem alterar código, recursos ou regras de balanceamento. `.godot/` é cache local ignorado pelo Git; os arquivos `.uid` dos scripts devem acompanhar o projeto.
 
 ## Início de uma nova tarefa
 

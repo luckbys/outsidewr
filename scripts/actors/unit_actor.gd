@@ -4,6 +4,7 @@ extends Node2D
 signal died(unit: UnitActor, attacker: UnitActor)
 
 enum Role { HERO, TROOP, BARRICADE, CORE }
+enum Order { HOLD, MOVE, ATTACK_MOVE, ATTACK_TARGET }
 
 var team: int = 0
 var role: Role = Role.TROOP
@@ -26,6 +27,14 @@ var moving := false
 var reward := 0
 var visual_variant := 0
 var facing := 1.0
+var order: Order = Order.HOLD
+var slow_timer := 0.0
+var slow_fraction := 0.0
+var aggro_target: UnitActor
+var aggro_timer := 0.0
+var windup_target: UnitActor
+var windup_timer := 0.0
+var ai_retreating := false
 
 func setup(match_node: Node, side: int, kind: Role, point: Vector2, player: bool = false) -> void:
 	arena = match_node
@@ -52,35 +61,116 @@ func tick(delta: float) -> void:
 	animation_time += delta
 	attack_timer = maxf(0.0, attack_timer - delta)
 	hit_flash = maxf(0.0, hit_flash - delta)
+	slow_timer = maxf(0.0, slow_timer - delta)
+	if aggro_timer > 0:
+		aggro_timer = maxf(0.0, aggro_timer - delta)
+		if aggro_timer <= 0:
+			aggro_target = null
+			attack_target = null
 	moving = false
 	if is_instance_valid(attack_target) and not attack_target.alive:
 		attack_target = null
-	if not controlled:
-		# Troops take barricade aggro before a hero when they enter together.
-		attack_target = arena.nearest_enemy(self, attack_range if speed == 0 else 205.0)
-		if speed > 0:
-			destination = Vector2(515 if team == 0 else -515, world_position.y)
+	if controlled:
+		update_player_order()
+	elif speed == 0:
+		attack_target = arena.defense_target(self)
+	elif role == Role.HERO:
+		update_hero_ai()
+	else:
+		# Keep the current opponent until it dies or leaves detection range.
+		if not target_in_range(attack_target, 205):
+			attack_target = arena.nearest_enemy(self, 205)
+		destination = Vector2(515 if team == 0 else -515, world_position.y)
 	var has_target := is_instance_valid(attack_target) and attack_target.alive
+	if speed == 0:
+		update_defense_attack(delta)
 	if has_target:
 		var distance := world_position.distance_to(attack_target.world_position)
 		if distance <= attack_range:
-			if attack_timer <= 0:
+			if speed > 0 and attack_timer <= 0:
 				attack_timer = attack_interval
-				var aim := Iso.project(attack_target.world_position - world_position)
-				if absf(aim.x) > 0.1:
-					facing = signf(aim.x)
-				arena.add_shot(world_position, attack_target.world_position, team)
-				attack_target.take_damage(damage, self)
+				fire_at(attack_target)
 		else:
 			move_towards(attack_target.world_position, delta)
-	elif controlled:
-		move_towards(destination, delta)
-		# Moving takes precedence. A stopped hero automatically attacks in range.
-		if not moving:
-			attack_target = arena.nearest_enemy(self, attack_range)
 	else:
 		move_towards(destination, delta)
 	position = Iso.project(world_position)
+	queue_redraw()
+
+func target_in_range(target: Variant, radius: float) -> bool:
+	# Freed targets must reach this guard before Godot validates a Node argument.
+	return is_instance_valid(target) and target.alive and world_position.distance_to(target.world_position) <= radius
+
+func update_player_order() -> void:
+	if order == Order.ATTACK_TARGET:
+		if is_instance_valid(attack_target) and attack_target.alive:
+			return
+		hold_position()
+	if order == Order.MOVE:
+		attack_target = null
+		if world_position.distance_to(destination) >= 3:
+			return
+		order = Order.HOLD
+	if order == Order.ATTACK_MOVE and world_position.distance_to(destination) < 3:
+		order = Order.HOLD
+	# Hold never chases. Attack-move stops only for opponents already in range,
+	# then resumes its original destination when they die or move away.
+	if not target_in_range(attack_target, attack_range):
+		attack_target = arena.nearest_enemy(self, attack_range)
+
+func hold_position() -> void:
+	order = Order.HOLD
+	attack_target = null
+	destination = world_position
+
+func update_hero_ai() -> void:
+	var home: Vector2 = MatchRules.FACTIONS[team].spawn_point
+	if hp / max_hp <= MatchRules.BOT_RETREAT_HEALTH:
+		ai_retreating = true
+	if ai_retreating:
+		if world_position.distance_to(home) < 95 and hp / max_hp >= MatchRules.BOT_RETURN_HEALTH:
+			ai_retreating = false
+		else:
+			attack_target = null
+			destination = home
+			return
+	if not target_in_range(attack_target, 205):
+		attack_target = arena.nearest_enemy(self, 205)
+	destination = Vector2(515 if team == 0 else -515, world_position.y)
+
+func update_defense_attack(delta: float) -> void:
+	if is_instance_valid(windup_target):
+		if windup_target != attack_target or not target_in_range(windup_target, attack_range):
+			windup_target = null
+			windup_timer = 0
+		else:
+			windup_timer = maxf(0, windup_timer - delta)
+			if windup_timer <= 0:
+				fire_at(windup_target)
+				windup_target = null
+	if not is_instance_valid(windup_target) and target_in_range(attack_target, attack_range) and attack_timer <= 0:
+		windup_target = attack_target
+		windup_timer = MatchRules.DEFENSE_WINDUP
+		attack_timer = attack_interval
+
+func fire_at(target: UnitActor) -> void:
+	var aim := Iso.project(target.world_position - world_position)
+	if absf(aim.x) > 0.1:
+		facing = signf(aim.x)
+	arena.add_shot(world_position, target.world_position, team)
+	target.take_damage(damage, self)
+
+func movement_speed() -> float:
+	return speed * (1.0 - slow_fraction if slow_timer > 0 else 1.0)
+
+func apply_slow(fraction: float, duration: float) -> void:
+	if not alive or speed <= 0 or duration <= 0:
+		return
+	if slow_timer <= 0:
+		slow_fraction = clampf(fraction, 0, 0.9)
+	else:
+		slow_fraction = maxf(slow_fraction, clampf(fraction, 0, 0.9))
+	slow_timer = maxf(slow_timer, duration)
 	queue_redraw()
 
 func move_towards(point: Vector2, delta: float) -> void:
@@ -89,7 +179,7 @@ func move_towards(point: Vector2, delta: float) -> void:
 	var direction := Iso.project(point - world_position)
 	if absf(direction.x) > 0.1:
 		facing = signf(direction.x)
-	world_position = Iso.clamp_to_lane(world_position.move_toward(point, speed * delta))
+	world_position = Iso.clamp_to_lane(world_position.move_toward(point, movement_speed() * delta))
 	moving = true
 
 func take_damage(amount: float, attacker: UnitActor) -> void:
@@ -101,6 +191,7 @@ func take_damage(amount: float, attacker: UnitActor) -> void:
 	if role == Role.CORE and arena.has_barricades(team):
 		return
 	hp = maxf(0, hp - amount)
+	arena.notify_hostile_action(attacker, self)
 	hit_flash = 0.14
 	queue_redraw()
 	if hp <= 0:
@@ -123,6 +214,8 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 20 if role == Role.HERO else 13, Color(0.03, 0.08, 0.08, 0.4))
 	if controlled:
 		draw_arc(Vector2.ZERO, 28, 0, TAU, 40, Color("eee3bb"), 2, true)
+	if slow_timer > 0:
+		draw_arc(Vector2.ZERO, 24, 0, TAU, 40, Color("9bc9c6"), 3, true)
 	draw_set_transform(Vector2.ZERO)
 	if role == Role.BARRICADE or role == Role.CORE:
 		draw_structure(color)
@@ -135,6 +228,10 @@ func _draw() -> void:
 	if role == Role.HERO:
 		draw_string(ThemeDB.fallback_font, Vector2(-24, -height - 7),
 			"VOCÊ" if controlled else "BOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("f5e8cc"))
+	var status := "LENTO" if slow_timer > 0 else ("RECUANDO" if ai_retreating else "")
+	if not status.is_empty():
+		draw_string(ThemeDB.fallback_font, Vector2(-20, -height - (21 if role == Role.HERO else 6)),
+			status, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color("bde3df"))
 
 func draw_person(color: Color) -> void:
 	var hero := role == Role.HERO

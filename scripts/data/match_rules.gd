@@ -12,9 +12,15 @@ const RESPAWN_TIME := 8.0
 const PULSE_RADIUS := 155.0
 const PULSE_DAMAGE := 70.0
 const PULSE_COOLDOWN := 7.0
+const PULSE_SLOW := 0.35
+const PULSE_SLOW_DURATION := 1.5
 const DASH_DISTANCE := 125.0
 const DASH_COOLDOWN := 5.0
 const BASE_HEAL_PER_SECOND := 24.0
+const DEFENSE_WINDUP := 0.45
+const DEFENSE_AGGRO_TIME := 3.0
+const BOT_RETREAT_HEALTH := 0.28
+const BOT_RETURN_HEALTH := 0.78
 
 static func stats(role: int) -> Dictionary:
 	match role:
