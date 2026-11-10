@@ -11,7 +11,7 @@ A interface usa painéis escuros, texto claro, destaques dourados e as cores azu
 | Cabeçalho | Tempo da partida, onda atual, vida percentual das centrais e barricadas vivas de cada equipe |
 | Próximo objetivo | Barricadas inimigas restantes; muda para a central quando ela fica vulnerável |
 | Próxima tropa | Contagem até a próxima onda da simulação |
-| Herói | Nome, retrato da equipe, vida atual/máxima e estado de movimento, combate, cura ou retorno |
+| Herói | Nome, retrato da equipe, vida atual/máxima e estado de movimento, combate, lentidão, mira de defesa, cura ou retorno |
 | Vida baixa | Texto e borda destacados quando o herói vivo fica abaixo de 30% de vida |
 | Alvo | Tipo e vida do inimigo selecionado; sem alvo, apresenta uma dica de avanço |
 | Habilidades | Atalho, disponibilidade e segundos reais de recarga |
@@ -19,9 +19,11 @@ A interface usa painéis escuros, texto claro, destaques dourados e as cores azu
 
 O contador **Alvos** registra as eliminações creditadas ao jogador, incluindo minions e estruturas; **Quedas** conta as derrotas do jogador. Não representa apenas eliminações de heróis.
 
-**Q / Impacto** causa dano em área. **E / Avanço** usa a última direção apontada no mundo, preservando a mira ao clicar no botão da HUD. **B / Recuar** ordena que o herói caminhe até sua central; a cura continua dependendo da proximidade da base. Os botões das habilidades ficam desabilitados durante sua recarga, a pausa e a espera pelo retorno.
+**Q / Impacto** causa dano em área e aplica lentidão de 35% por 1,5 s. **E / Avanço** usa a última direção apontada no mundo, preservando a mira ao clicar no botão da HUD. **B / Recuar** ordena que o herói caminhe até sua central; a cura continua dependendo da proximidade da base. Os botões das habilidades ficam desabilitados durante sua recarga, a pausa e a espera pelo retorno.
 
-O **minimapa** mostra heróis, tropas, barricadas e centrais nas posições da partida. O círculo branco identifica o jogador; o traço dourado indica sua ordem de movimento ou ataque. Clique no mapa para ordenar movimento até o ponto correspondente da rota. Os limites da rota continuam sendo aplicados pelo controlador.
+O **minimapa** mostra heróis, tropas, barricadas e centrais nas posições da partida. O círculo branco identifica o jogador; o traço dourado indica sua ordem de movimento ou ataque. Clique no mapa para ordenar movimento ou use **Shift + clique** para avançar atacando. Os limites da rota continuam sendo aplicados pelo controlador.
+
+Quando uma defesa mira no jogador, a HUD destaca o cartão em coral e mostra **MIRA DA DEFESA / RECUE**. O cenário mostra a linha de mira e o alcance durante os 0,45 s de preparação do disparo. O painel de objetivo apresenta uma dica sobre essas regras ao passar o mouse. **Espaço** mantém a posição sem perseguir inimigos que saiam do alcance.
 
 ![HUD em uma janela de 800×600](images/hud-compact.png)
 

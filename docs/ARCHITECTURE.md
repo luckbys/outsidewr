@@ -23,7 +23,11 @@ As posições de jogo são `Vector2` em um plano lógico. `Iso.project()` conver
 
 `MatchController.simulate(delta)` é o ponto único de avanço: cronômetro, ondas, recargas, retorno dos heróis, unidades, cura, efeitos e limpeza. O `_process()` encaminha o delta, respeitando seleção inicial, pausa e fim da partida. Os testes podem desativar esse processamento e avançar o mesmo código em passos explícitos.
 
-As unidades procuram o inimigo vivo mais próximo dentro de seu raio de detecção. Barricadas e centrais não se movem. Os ataques aplicam dano imediatamente; os traços são apenas efeitos visuais, não projéteis físicos.
+Tropas e heróis automáticos mantêm o alvo enquanto ele está vivo dentro do raio de detecção. Barricadas e centrais não se movem: `defense_target()` prioriza tropas ao adquirir um alvo e considera a retaliação contra heróis. `notify_hostile_action()` é chamado apenas depois de um dano válido; dano aliado e dano rejeitado pela proteção da central não provocam retaliação.
+
+Ataques de personagens aplicam dano imediatamente. Defesas preparam o disparo durante `DEFENSE_WINDUP`, revalidando alvo e alcance antes de aplicar dano. Os traços não são projéteis físicos. Os temporizadores de preparação, retaliação e lentidão avançam somente com a simulação, respeitando a pausa.
+
+`UnitActor.Order` separa movimento, avanço com ataque, ataque explícito e posição mantida. O destino do avanço com ataque é preservado durante o combate. `hold_position()` cancela a perseguição sem reiniciar a recarga do ataque. Heróis automáticos usam `ai_retreating` para manter a decisão de recuar até a recuperação mínima, sem alternar a cada quadro perto do limiar de vida.
 
 `UnitActor.died` comunica derrotas ao controlador. As unidades mortas saem da lista após o passo de simulação. O jogador morto permanece oculto até ser substituído no retorno, para manter uma referência válida na interface.
 
@@ -51,6 +55,8 @@ O viewport usa escala de conteúdo desativada para manter o texto legível em pi
 `tests/match_smoke.gd` carrega a cena real e testa comandos e uma partida acelerada. `tests/input_smoke.gd` injeta eventos no viewport para testar seleção e controles pelo caminho da interface. Uma falha resulta em código de saída 1.
 
 `tests/hud_smoke.gd` verifica o layout em 1440×900, 800×600 e 480×800, a conversão de cliques no minimapa, bloqueio de comandos sob painéis e durante a pausa, direção do avanço, recuo, recargas, objetivos e os atalhos da demonstração 3D.
+
+`tests/mechanics_smoke.gd` verifica as ordens pelo controlador e pelo viewport, efeitos na distância percorrida, preparação e cancelamento de tiros, prioridades e expiração da retaliação, recuo e cura do bot. Também joga partidas completas de ambas as facções usando apenas comandos e habilidades públicos.
 
 `tools/capture_preview.gd` produz imagens do menu e da partida com um renderer real. O modo headless importa e testa o código, mas não valida pixels. O teste visual exige um display X11/Wayland ou equivalente.
 

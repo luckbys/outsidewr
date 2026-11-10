@@ -92,7 +92,7 @@ bash tools/setup.sh
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 ```
 
-O setup executa **37 verificações do jogo 2D**, **34 do ambiente 3D** e **23 da HUD**, totalizando **94**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`. A suíte da HUD também verifica os botões, atalhos e o layout responsivo da demonstração.
+O setup executa **37 verificações de simulação e entrada**, **39 de mecânicas do jogo 2D**, **34 do ambiente 3D** e **23 da HUD**, totalizando **133**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`. A suíte da HUD também verifica os botões, atalhos e o layout responsivo da demonstração.
 
 A demonstração também foi exportada e executada no Chromium com WebGL 2, com inspeção visual e comandos de câmera. Os testes headless verificam estrutura e comportamento; a validação no navegador verifica a renderização.
 

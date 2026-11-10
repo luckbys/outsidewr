@@ -30,6 +30,7 @@ var aim_position := Vector2.ZERO
 
 func _ready() -> void:
 	effects.set_script(EffectsScript)
+	effects.arena = self
 	get_viewport().size_changed.connect(resize_world)
 	resize_world()
 	hud.bind_match(self)
@@ -149,6 +150,41 @@ func nearest_enemy(source: UnitActor, radius: float) -> UnitActor:
 			nearest = other
 	return nearest
 
+func defense_target(defense: UnitActor) -> UnitActor:
+	if defense.aggro_timer > 0:
+		if defense.target_in_range(defense.aggro_target, defense.attack_range):
+			return defense.aggro_target
+		defense.aggro_target = null
+		defense.aggro_timer = 0
+		defense.attack_target = null
+	if defense.target_in_range(defense.attack_target, defense.attack_range):
+		return defense.attack_target
+	# Minions soak the first defensive shots; heroes cannot steal that target
+	# just by moving closer. Attacking a protected hero overrides this priority.
+	var troop: UnitActor
+	var distance := defense.attack_range + 0.001
+	for unit in units:
+		if unit.team != defense.team and unit.role == UnitActor.Role.TROOP and defense.target_in_range(unit, distance):
+			troop = unit
+			distance = defense.world_position.distance_to(unit.world_position)
+	return troop if troop != null else nearest_enemy(defense, defense.attack_range)
+
+func notify_hostile_action(attacker: UnitActor, victim: UnitActor) -> void:
+	if not is_instance_valid(attacker) or attacker.role != UnitActor.Role.HERO or victim.role != UnitActor.Role.HERO:
+		return
+	for unit in units:
+		if unit.alive and unit.team == victim.team and unit.role in [UnitActor.Role.BARRICADE, UnitActor.Role.CORE]:
+			if unit.target_in_range(victim, unit.attack_range) and unit.target_in_range(attacker, unit.attack_range):
+				unit.aggro_target = attacker
+				unit.aggro_timer = MatchRules.DEFENSE_AGGRO_TIME
+
+func player_under_defense_threat() -> bool:
+	for unit in units:
+		if unit.alive and unit.team != player_team and unit.role in [UnitActor.Role.BARRICADE, UnitActor.Role.CORE]:
+			if unit.attack_target == player and unit.target_in_range(player, unit.attack_range):
+				return true
+	return false
+
 func has_barricades(team: int) -> bool:
 	for unit in units:
 		if unit.alive and unit.team == team and unit.role == UnitActor.Role.BARRICADE:
@@ -187,13 +223,31 @@ func announce(message: String) -> void:
 func mouse_world_position() -> Vector2:
 	return Iso.clamp_to_lane(Iso.unproject(world.get_local_mouse_position()))
 
-func command_move(point: Vector2) -> void:
-	if not is_instance_valid(player) or not player.alive:
+func command_move(point: Vector2, attack_on_path: bool = false) -> void:
+	if state != State.PLAYING or paused or not is_instance_valid(player) or not player.alive:
 		return
+	player.order = UnitActor.Order.ATTACK_MOVE if attack_on_path else UnitActor.Order.MOVE
 	player.attack_target = null
 	player.destination = Iso.clamp_to_lane(point)
 	aim_position = player.destination
-	effects.ring(player.destination, 15, Color("e1d5a8"))
+	effects.ring(player.destination, 22 if attack_on_path else 15,
+		Color("f19279") if attack_on_path else Color("e1d5a8"))
+
+func command_stop() -> void:
+	if state == State.PLAYING and not paused and player.alive:
+		player.hold_position()
+
+func command_attack(target: UnitActor) -> bool:
+	if state != State.PLAYING or paused or not player.alive or not is_instance_valid(target) or not target.alive or target.team == player_team:
+		return false
+	if target.role == UnitActor.Role.CORE and has_barricades(target.team):
+		announce("A central está protegida. Destrua as duas barricadas primeiro.")
+		return false
+	player.order = UnitActor.Order.ATTACK_TARGET
+	player.destination = player.world_position
+	player.attack_target = target
+	effects.ring(target.world_position, 22, MatchRules.FACTIONS[target.team].color)
+	return true
 
 func command_retreat() -> bool:
 	if state != State.PLAYING or paused or not player.alive:
@@ -211,12 +265,15 @@ func toggle_pause() -> void:
 	else:
 		hud.hide_overlay()
 
-func command_pointer(screen_position: Vector2) -> void:
-	if not player.alive:
+func command_pointer(screen_position: Vector2, attack_on_path: bool = false) -> void:
+	if state != State.PLAYING or paused or not player.alive:
 		return
 	# Picking uses the visible silhouette, not just the actor's ground point.
 	var pointer := world.get_global_transform_with_canvas().affine_inverse() * screen_position
 	aim_position = Iso.clamp_to_lane(Iso.unproject(pointer))
+	if attack_on_path:
+		command_move(aim_position, true)
+		return
 	var target: UnitActor = null
 	var best := 1.0
 	for unit in units:
@@ -230,11 +287,7 @@ func command_pointer(screen_position: Vector2) -> void:
 			best = distance
 			target = unit
 	if target != null:
-		if target.role == UnitActor.Role.CORE and has_barricades(target.team):
-			announce("A central está protegida. Destrua as duas barricadas primeiro.")
-			return
-		player.attack_target = target
-		effects.ring(target.world_position, 22, MatchRules.FACTIONS[target.team].color)
+		command_attack(target)
 	else:
 		command_move(Iso.clamp_to_lane(Iso.unproject(pointer)))
 
@@ -247,6 +300,7 @@ func cast_pulse() -> bool:
 		if unit.alive and unit.team != player_team and unit.role in [UnitActor.Role.HERO, UnitActor.Role.TROOP]:
 			if player.world_position.distance_to(unit.world_position) <= MatchRules.PULSE_RADIUS:
 				unit.take_damage(MatchRules.PULSE_DAMAGE, player)
+				unit.apply_slow(MatchRules.PULSE_SLOW, MatchRules.PULSE_SLOW_DURATION)
 	return true
 
 func cast_dash(towards: Vector2) -> bool:
@@ -255,13 +309,15 @@ func cast_dash(towards: Vector2) -> bool:
 	var direction := player.world_position.direction_to(towards)
 	if direction == Vector2.ZERO:
 		return false
+	var destination := Iso.clamp_to_lane(player.world_position + direction * MatchRules.DASH_DISTANCE)
+	if destination.distance_to(player.world_position) < 0.01:
+		return false
 	dash_timer = MatchRules.DASH_COOLDOWN
-	effects.shot(player.world_position, player.world_position + direction * MatchRules.DASH_DISTANCE,
+	effects.shot(player.world_position, destination,
 		MatchRules.FACTIONS[player_team].color)
-	player.world_position = Iso.clamp_to_lane(player.world_position + direction * MatchRules.DASH_DISTANCE)
+	player.world_position = destination
 	player.position = Iso.project(player.world_position)
-	player.destination = player.world_position
-	player.attack_target = null
+	player.hold_position()
 	return true
 
 func handle_keyboard_movement(delta: float) -> void:
@@ -271,6 +327,7 @@ func handle_keyboard_movement(delta: float) -> void:
 		float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
 		float(Input.is_physical_key_pressed(KEY_S)) - float(Input.is_physical_key_pressed(KEY_W)))
 	if screen_direction != Vector2.ZERO:
+		player.order = UnitActor.Order.MOVE
 		player.attack_target = null
 		player.destination = Iso.clamp_to_lane(player.world_position +
 			Iso.unproject(screen_direction).normalized() * player.speed * maxf(delta, 0.04))
@@ -283,7 +340,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if state != State.PLAYING or paused:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
-		command_pointer(event.position)
+		command_pointer(event.position, event.shift_pressed)
 	elif event is InputEventMouseMotion:
 		var pointer: Vector2 = world.get_global_transform_with_canvas().affine_inverse() * event.position
 		aim_position = Iso.clamp_to_lane(Iso.unproject(pointer))
@@ -292,7 +349,4 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_Q: cast_pulse()
 			KEY_E: cast_dash(aim_position)
 			KEY_B: command_retreat()
-			KEY_SPACE:
-				if player.alive:
-					player.attack_target = null
-					player.destination = player.world_position
+			KEY_SPACE: command_stop()
