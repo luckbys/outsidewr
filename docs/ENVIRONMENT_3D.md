@@ -14,7 +14,7 @@ No terminal:
 bash tools/godot.sh res://scenes/demo_3d.tscn
 ```
 
-O **F5** continua iniciando o jogo 2D. O botão **Abrir jogo 2D** da demonstração também leva à cena original.
+O **F5** continua iniciando o jogo 2D. O botão **Jogar 2D** da demonstração também leva à cena original.
 
 ## Exploração
 
@@ -25,11 +25,15 @@ O **F5** continua iniciando o jogo 2D. O botão **Abrir jogo 2D** da demonstraç
 | Arrastar com o botão direito | Ajustar rotação e inclinação |
 | Roda do mouse | Aproximar ou afastar |
 | Arrastar com o botão do meio | Deslocar a vista |
-| Home / Vista geral | Restaurar o enquadramento inicial |
-| Central Azul / Central Coral | Enquadrar o objetivo correspondente |
-| Ver navegação | Mostrar o corredor navegável em azul translúcido |
-| Personagens | Aproximar dos heróis e das tropas |
-| Barricadas | Inspecionar a defesa de concreto e seus objetos |
+| Home / 1 / Vista geral | Restaurar o enquadramento inicial |
+| 2 / Central Azul | Enquadrar a central azul |
+| 3 / Central Coral | Enquadrar a central coral |
+| 4 / Personagens | Aproximar dos heróis e das tropas |
+| 5 / Barricadas | Inspecionar a defesa de concreto e seus objetos |
+| N / Navegação | Mostrar o corredor navegável em azul translúcido |
+| H / ? | Abrir ou fechar a ajuda da câmera |
+
+A barra inferior reorganiza os botões em linhas conforme a largura da janela. O cabeçalho mostra o enquadramento selecionado e o zoom atual; mover a câmera manualmente muda o estado para **Vista livre**. Veja também [HUD e interface](HUD.md).
 
 ## Organização da cena
 
@@ -88,7 +92,7 @@ bash tools/setup.sh
 bash tools/godot.sh --headless --script tests/district_3d_smoke.gd
 ```
 
-O setup executa as **37 verificações do jogo 2D** e **34 verificações do ambiente 3D**, totalizando **71**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`.
+O setup executa **37 verificações do jogo 2D**, **34 do ambiente 3D** e **23 da HUD**, totalizando **94**. A suíte 3D carrega a demonstração real, verifica grupos, módulos, dimensões, colisões, marcadores, câmera e uma rota entre os nascimentos consultada pelo `NavigationServer3D`. A suíte da HUD também verifica os botões, atalhos e o layout responsivo da demonstração.
 
 A demonstração também foi exportada e executada no Chromium com WebGL 2, com inspeção visual e comandos de câmera. Os testes headless verificam estrutura e comportamento; a validação no navegador verifica a renderização.
 

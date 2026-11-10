@@ -26,6 +26,7 @@ var deaths := 0
 var winner := -1
 var notice := ""
 var notice_timer := 0.0
+var aim_position := Vector2.ZERO
 
 func _ready() -> void:
 	effects.set_script(EffectsScript)
@@ -58,6 +59,7 @@ func start_match(team: int) -> void:
 	deaths = 0
 	winner = -1
 	paused = false
+	aim_position = Vector2.ZERO
 	state = State.PLAYING
 	for side in 2:
 		var direction := -1.0 if side == 0 else 1.0
@@ -190,13 +192,31 @@ func command_move(point: Vector2) -> void:
 		return
 	player.attack_target = null
 	player.destination = Iso.clamp_to_lane(point)
+	aim_position = player.destination
 	effects.ring(player.destination, 15, Color("e1d5a8"))
+
+func command_retreat() -> bool:
+	if state != State.PLAYING or paused or not player.alive:
+		return false
+	command_move(MatchRules.FACTIONS[player_team].spawn_point)
+	announce("Recuando à central para recuperar vida.")
+	return true
+
+func toggle_pause() -> void:
+	if state != State.PLAYING:
+		return
+	paused = not paused
+	if paused:
+		hud.show_pause()
+	else:
+		hud.hide_overlay()
 
 func command_pointer(screen_position: Vector2) -> void:
 	if not player.alive:
 		return
 	# Picking uses the visible silhouette, not just the actor's ground point.
 	var pointer := world.get_global_transform_with_canvas().affine_inverse() * screen_position
+	aim_position = Iso.clamp_to_lane(Iso.unproject(pointer))
 	var target: UnitActor = null
 	var best := 1.0
 	for unit in units:
@@ -258,17 +278,20 @@ func handle_keyboard_movement(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ESCAPE:
 		if state == State.PLAYING:
-			paused = not paused
-			hud.show_pause() if paused else hud.hide_overlay()
+			toggle_pause()
 		return
 	if state != State.PLAYING or paused:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
 		command_pointer(event.position)
+	elif event is InputEventMouseMotion:
+		var pointer: Vector2 = world.get_global_transform_with_canvas().affine_inverse() * event.position
+		aim_position = Iso.clamp_to_lane(Iso.unproject(pointer))
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_Q: cast_pulse()
-			KEY_E: cast_dash(mouse_world_position())
+			KEY_E: cast_dash(aim_position)
+			KEY_B: command_retreat()
 			KEY_SPACE:
 				if player.alive:
 					player.attack_target = null

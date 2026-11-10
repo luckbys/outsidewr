@@ -38,9 +38,19 @@ As duas barricadas protegem a central de sua equipe. Tanto a seleção automáti
 
 Personagens compartilham um script nesta versão. Quando houver heróis com habilidades próprias, extraia estatísticas e habilidades para Resources e cenas específicas, mantendo o controle da partida fora dessas cenas.
 
+## Interface
+
+`match_hud.gd` consulta o estado real do controlador e organiza os painéis conforme o tamanho do viewport. `hud_theme.gd` compartilha cores e estilos entre a partida e a demonstração 3D. `ability_button.gd` desenha atalhos, disponibilidade e recargas; `tactical_minimap.gd` projeta unidades e converte cliques em comandos pela transformação inversa.
+
+Os cartões e botões consomem eventos do mouse para evitar comandos no mundo sob a interface. `aim_position` guarda a última direção apontada no mapa; o botão Avanço usa essa posição. `command_retreat()` e `toggle_pause()` centralizam as ações usadas pelo teclado e pela HUD.
+
+O viewport usa escala de conteúdo desativada para manter o texto legível em pixels da janela. O mundo 2D continua calculando seu próprio enquadramento. A barra da demonstração 3D usa `HFlowContainer` para distribuir os botões em linhas.
+
 ## Verificação e limites
 
 `tests/match_smoke.gd` carrega a cena real e testa comandos e uma partida acelerada. `tests/input_smoke.gd` injeta eventos no viewport para testar seleção e controles pelo caminho da interface. Uma falha resulta em código de saída 1.
+
+`tests/hud_smoke.gd` verifica o layout em 1440×900, 800×600 e 480×800, a conversão de cliques no minimapa, bloqueio de comandos sob painéis e durante a pausa, direção do avanço, recuo, recargas, objetivos e os atalhos da demonstração 3D.
 
 `tools/capture_preview.gd` produz imagens do menu e da partida com um renderer real. O modo headless importa e testa o código, mas não valida pixels. O teste visual exige um display X11/Wayland ou equivalente.
 
